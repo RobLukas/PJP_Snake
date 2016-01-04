@@ -248,11 +248,11 @@ int main()
 			else if (state == SETTING)
 			{
 				int Change = 0;
+
 				if (keys[ESCAPE])
 				{
 					state = MENU;
 					keys[ESCAPE] = false;
-
 				}
 
 				if (keys[q])
