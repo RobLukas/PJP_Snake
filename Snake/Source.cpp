@@ -23,7 +23,7 @@ int Height = 600;
 float FPS = 60.0;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
-bool keys[] = { false, false, false, false, false, false, false };
+bool keys[] = { false, false, false, false, false, false, false, false };
 enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q};
 
 ALLEGRO_SAMPLE_INSTANCE *SongInst = NULL;
@@ -144,6 +144,7 @@ int main()
 	al_start_timer(timer);
 	TimeGame = al_current_time();
 
+	al_play_sample_instance(SongInst);
 	while (!done)
 	{
 		ALLEGRO_EVENT ev;
@@ -214,6 +215,7 @@ int main()
 		{
 			Return = true;
 
+			int Change;
 			//al_draw_textf(fps, al_map_rgb(255, 0, 255), 5, 5, 0, GameFPS);
 
 			frame++;
@@ -245,9 +247,24 @@ int main()
 			}
 			else if (state == SETTING)
 			{
+				int Change = 0;
 				if (keys[ESCAPE])
 				{
 					state = MENU;
+					keys[ESCAPE] = false;
+
+				}
+
+				if (keys[q])
+				{
+					Change = 1;
+					al_stop_sample_instance(SongInst);
+					keys[ESCAPE] = false;
+				}
+				if (keys[q] && Change == 1)
+				{
+					Change = 0;
+					al_play_sample_instance(SongInst);
 					keys[ESCAPE] = false;
 				}
 			}
@@ -258,7 +275,6 @@ int main()
 					state = MENU;
 					keys[ESCAPE] = false;
 				}
-
 				if (keys[ENTER])
 				{
 					state = PLAY;
@@ -271,35 +287,31 @@ int main()
 		{
 			Return = false;
 
-
 			if (state == MENU)
 			{
-				al_play_sample_instance(SongInst);
 				MenuScene(background, titles, subtitles, options_titles, x, y);
-
+/*				if (Change == 1)
+				{
+					al_play_sample_instance(SongInst);
+				}
+				if (Change == 0)
+				{
+					al_stop_sample_instance(SongInst);
+				}
+*/
 			}
-
 			else if (state == PLAY)
 			{
-				al_stop_sample_instance(SongInst);
-				al_play_sample_instance(InGameSoundInst);
 				PlayScene(background_game, head_right, x, y);
-				al_stop_sample_instance(InGameSoundInst);
 			}
-
 			else if (state == GAMEOVER)
 			{
 				al_stop_sample_instance(SongInst);
 				GameoverScene(titles);
 			}
-
 			else if (state = SETTING)
 			{
 				SettingScene(background, setting_titles, subtitles, x, y);
-				if (keys[q])
-				{
-					al_stop_sample_instance(SongInst);
-				}
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -360,9 +372,3 @@ void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLE
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 250, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Dzwiek: ");
 	al_flip_display();
 }
-
-int ChangeMusic()
-{
-	return 0;
-}
-
