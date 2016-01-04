@@ -3,7 +3,7 @@
 
 int MessageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *titles, ALLEGRO_FONT *setting_titles, 
 	ALLEGRO_FONT *options_titles, ALLEGRO_FONT *fps, ALLEGRO_BITMAP *background, ALLEGRO_BITMAP *background_game, 
-	ALLEGRO_BITMAP *head_right, ALLEGRO_SAMPLE *Song, ALLEGRO_SAMPLE *InGameSound)
+	ALLEGRO_BITMAP *head_right, ALLEGRO_SAMPLE_INSTANCE *InGameSound)
 {
 
 	if (!al_install_audio()) 
@@ -89,11 +89,6 @@ int MessageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FON
 	if (!head_right)
 	{
 		fprintf(stderr, "Error: Not found file head_right!\n");
-		return -1;
-	}
-	if (!Song)
-	{
-		fprintf(stderr, "Error: Not found file Song!\n");
 		return -1;
 	}
 	if (!InGameSound)

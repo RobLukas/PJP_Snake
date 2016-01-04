@@ -12,10 +12,10 @@
 #include "Animation.h"
 #include "MessageError.h"
 
-void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y);
+void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y, int GameFPS, ALLEGRO_FONT *fps);
 void PlayScene(ALLEGRO_BITMAP *background_game, ALLEGRO_BITMAP *head_right, int x, int y);
 void GameoverScene(ALLEGRO_FONT *titles);
-void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *subtitles, int x, int y);
+void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y);
 
 //=========== GLOBAL VARIABLES ===========//
 int Width = 800;
@@ -23,8 +23,8 @@ int Height = 600;
 float FPS = 60.0;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
-bool keys[] = { false, false, false, false, false, false, false, false };
-enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q};
+bool keys[] = { false, false, false, false, false, false, false, false, false };
+enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w};
 
 ALLEGRO_SAMPLE_INSTANCE *SongInst = NULL;
 ALLEGRO_SAMPLE_INSTANCE *InGameSoundInst = NULL;
@@ -42,6 +42,7 @@ int main()
 	int state = MENU;
 	bool done = false;
 	bool Return = false;
+
 	float TimeGame = 0;
 	int frame = 0;
 	int GameFPS = 0;
@@ -61,7 +62,7 @@ int main()
 	ALLEGRO_BITMAP *wall1;
 	ALLEGRO_BITMAP *wall;
 	ALLEGRO_TIMER *timer = NULL;
-	ALLEGRO_FONT *fps = NULL;
+	ALLEGRO_FONT *fps;
 	ALLEGRO_FONT *options_titles;
 	ALLEGRO_FONT *setting_titles;
 	ALLEGRO_FONT *titles;
@@ -95,7 +96,7 @@ int main()
 	titles = al_load_font("BuxtonSketch.ttf", 100, NULL);
 	setting_titles = al_load_font("BuxtonSketch.ttf", 55, NULL);
 	options_titles = al_load_font("BuxtonSketch.ttf", 10, NULL);
-	fps = al_load_font("arial.ttf", 18, NULL);
+	fps = al_load_font("arial.ttf", 13, NULL);
 
 	//=========== IMAGES ===========//
 	background = al_load_bitmap("tlo1.bmp");
@@ -108,7 +109,7 @@ int main()
 	//wall = al_load_bitmap("wall.bmp");
 
 	//=========== MESSAGE ERRORS ===========//
-	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right, Song, InGameSound);
+	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right, InGameSoundInst);
 
 	//=========== TIMER ===========//
 	event_queue = al_create_event_queue();
@@ -117,7 +118,6 @@ int main()
 	//=========== AUDIO ===========//
 	al_reserve_samples(10);
 
-	Song = al_load_sample("song.ogg");
 	InGameSound = al_load_sample("ingame1.ogg");
 	//EatRed = al_load_sample("eatred.gg");
 	//EatMashroom= al_load_sample("changeonred.ogg");
@@ -131,10 +131,11 @@ int main()
 	al_attach_sample_instance_to_mixer(InGameSoundInst, al_get_default_mixer());
 
 	//=========== SONG =========== //
+	/*
 	SongInst = al_create_sample_instance(Song);
 	al_set_sample_instance_playmode(SongInst, ALLEGRO_PLAYMODE_LOOP);
 	al_attach_sample_instance_to_mixer(SongInst, al_get_default_mixer());
-
+	*/
 	//=================================//
 	//=========== START PROGRAM ===========//
 	al_register_event_source(event_queue, al_get_keyboard_event_source());
@@ -144,7 +145,7 @@ int main()
 	al_start_timer(timer);
 	TimeGame = al_current_time();
 
-	al_play_sample_instance(SongInst);
+	al_play_sample_instance(InGameSoundInst);
 	while (!done)
 	{
 		ALLEGRO_EVENT ev;
@@ -179,6 +180,9 @@ int main()
 			case ALLEGRO_KEY_Q:
 				keys[q] = true;
 				break;
+			case ALLEGRO_KEY_W:
+				keys[w] = true;
+				break;
 			}
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP)
@@ -209,14 +213,14 @@ int main()
 			case ALLEGRO_KEY_Q:
 				keys[q] = false;
 				break;
+			case ALLEGRO_KEY_W:
+				keys[w] = false;
+				break;
 			}
 		}
 		else if (ev.type == ALLEGRO_EVENT_TIMER)
 		{
 			Return = true;
-
-			int Change;
-			//al_draw_textf(fps, al_map_rgb(255, 0, 255), 5, 5, 0, GameFPS);
 
 			frame++;
 			if (al_current_time() - GameFPS >= 1)
@@ -247,8 +251,6 @@ int main()
 			}
 			else if (state == SETTING)
 			{
-				int Change = 0;
-
 				if (keys[ESCAPE])
 				{
 					state = MENU;
@@ -257,16 +259,27 @@ int main()
 
 				if (keys[q])
 				{
-					Change = 1;
+					al_play_sample_instance(InGameSoundInst);
+					keys[ESCAPE] = false;
+				}
+				if (keys[w])
+				{
+					al_stop_sample_instance(InGameSoundInst);
+					keys[ESCAPE] = false;
+				}
+				/*
+				if (keys[q] && al_stop_sample_instance(SongInst))
+				{
+						al_play_sample_instance(SongInst);
+						keys[ESCAPE] = false;
+				}
+
+				if (keys[q] && al_play_sample_instance(SongInst))
+				{
 					al_stop_sample_instance(SongInst);
 					keys[ESCAPE] = false;
 				}
-				if (keys[q] && Change == 1)
-				{
-					Change = 0;
-					al_play_sample_instance(SongInst);
-					keys[ESCAPE] = false;
-				}
+				*/
 			}
 			else if (state == GAMEOVER)
 			{
@@ -287,18 +300,11 @@ int main()
 		{
 			Return = false;
 
+
 			if (state == MENU)
 			{
-				MenuScene(background, titles, subtitles, options_titles, x, y);
-/*				if (Change == 1)
-				{
-					al_play_sample_instance(SongInst);
-				}
-				if (Change == 0)
-				{
-					al_stop_sample_instance(SongInst);
-				}
-*/
+
+				MenuScene(background, titles, subtitles, options_titles, x, y, GameFPS, fps);
 			}
 			else if (state == PLAY)
 			{
@@ -306,12 +312,12 @@ int main()
 			}
 			else if (state == GAMEOVER)
 			{
-				al_stop_sample_instance(SongInst);
+				al_stop_sample_instance(InGameSoundInst);
 				GameoverScene(titles);
 			}
 			else if (state = SETTING)
 			{
-				SettingScene(background, setting_titles, subtitles, x, y);
+				SettingScene(background, setting_titles, options_titles, subtitles, x, y);
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -334,7 +340,7 @@ int main()
 	return 0;
 }
 
-void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y)
+void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y, int GameFPS, ALLEGRO_FONT *fps)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_bitmap(background, x, y, 0);
@@ -345,6 +351,7 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 70, ALLEGRO_ALIGN_CENTRE, "[ENTER]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 120, ALLEGRO_ALIGN_CENTRE, "[TAB]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 170, ALLEGRO_ALIGN_CENTRE, "[ESC]");
+	al_draw_textf(fps, al_map_rgb(100, 0, 100), 5, 5, 0, "FPS: %d", GameFPS);
 	al_flip_display();
 }
 
@@ -364,11 +371,15 @@ void GameoverScene(ALLEGRO_FONT *titles)
 	al_flip_display();
 }
 
-void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *subtitles, int x, int y)
+void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_bitmap(background, x, y, 0);
 	al_draw_textf(setting_titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "Ustawienia");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 250, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Dzwiek: ");
+	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "ON");
+	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 500, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "OFF");
+	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 435, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[Q]");
+	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 543, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[W]");
 	al_flip_display();
 }
