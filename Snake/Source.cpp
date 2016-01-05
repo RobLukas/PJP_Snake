@@ -13,9 +13,11 @@
 #include "MessageError.h"
 
 void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y, int GameFPS, ALLEGRO_FONT *fps);
-void PlayScene(ALLEGRO_BITMAP *background_game, ALLEGRO_BITMAP *head_right, int x, int y);
+void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down);
 void GameoverScene(ALLEGRO_FONT *titles);
 void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y);
+void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down);
+void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down);
 
 //=========== GLOBAL VARIABLES ===========//
 int Width = 800;
@@ -25,6 +27,16 @@ float FPS = 60.0;
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
 bool keys[] = { false, false, false, false, false, false, false, false, false };
 enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w};
+
+enum DirectionSnake { Up, Down, Left, Right };
+bool start = false;
+
+int DirectionSnake = Right;
+
+int HeadPosX;
+int HeadPosY;
+
+//=========== GLOBAL VARIABLES ===========//
 
 ALLEGRO_SAMPLE_INSTANCE *SongInst = NULL;
 ALLEGRO_SAMPLE_INSTANCE *InGameSoundInst = NULL;
@@ -243,14 +255,36 @@ int main()
 			}
 			else if (state == PLAY)
 			{
-				if (keys[ESCAPE])
+				if (keys[RIGHT] && DirectionSnake != 2)
+				{
+					DirectionSnake = Right;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[LEFT] && DirectionSnake != 3)
+				{
+					DirectionSnake = Left;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[DOWN] && DirectionSnake != 0)
+				{
+					DirectionSnake = Down;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[UP] && DirectionSnake != 1)
+				{
+					DirectionSnake = Up;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[ESCAPE])
 				{
 					state = MENU;
 					keys[ESCAPE] = false;
+					start = false;
 				}
 			}
 			else if (state == SETTING)
 			{
+
 				if (keys[ESCAPE])
 				{
 					state = MENU;
@@ -306,7 +340,9 @@ int main()
 			}
 			else if (state == PLAY)
 			{
-				PlayScene(background_game, head_right, x, y);
+				start = true;
+				PlayScene(background_game, x, y, head_right, head_left, head_up, head_down);
+
 			}
 			else if (state == GAMEOVER)
 			{
@@ -348,8 +384,8 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_bitmap(background, x, y, 0);
+	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "SNAKE !"); 
 	al_draw_textf(fps, al_map_rgb(100, 0, 100), 5, 5, 0, "FPS: %d", GameFPS);
-	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "SNAKE !");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Nowa gra");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 100, ALLEGRO_ALIGN_CENTRE, "Ustawienia");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 150, ALLEGRO_ALIGN_CENTRE, "Zamknij gre");
@@ -359,11 +395,11 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 	al_flip_display();
 }
 
-void PlayScene(ALLEGRO_BITMAP *background_game, ALLEGRO_BITMAP *head_right, int x, int y)
+void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_bitmap(background_game, x, y, 0);
-	MoveRight(head_right);
+	//al_draw_bitmap(background_game, x, y, 0);
+	GameRun(right, left, up, down);
 	al_flip_display();
 }
 
@@ -385,4 +421,71 @@ void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLE
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 435, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[Q]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 543, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[W]");
 	al_flip_display();
+}
+
+void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down)
+{
+	const int MapWidth = 25;
+	const int MapHeight = 25;
+
+	const int TotalMap = MapHeight * MapHeight;
+
+	int Map[TotalMap];
+
+	HeadPosX = 800 / 2;
+	HeadPosY = 600 / 2;
+
+	while (!start)
+	{
+		DirectionMove(right, left, up, down);
+	}
+
+}
+
+void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down)
+{
+	int HeadXNow = 0;
+	int HeadYNow = 0;
+
+
+	switch (DirectionSnake)
+	{
+		case Right:
+		{
+			HeadXNow = HeadPosX + 1;
+			// find food
+			HeadPosX = HeadXNow;
+			al_draw_bitmap(right, HeadPosX, 5, 0);
+		}
+			break;
+		case Left:
+		{
+			HeadXNow = HeadPosX - 1;
+
+			//food
+			HeadPosX = HeadXNow;
+			al_draw_bitmap(left, HeadPosX, HeadPosY, 0);
+		}
+			break;
+		case Up:
+		{
+			HeadYNow = HeadPosY - 1;
+
+
+			HeadPosY = HeadYNow;
+			al_draw_bitmap(up, HeadPosX, HeadPosY, 0);
+		}
+			break;
+		case Down:
+		{
+			HeadYNow = HeadPosY + 1;
+
+
+			HeadPosY = HeadYNow;
+			al_draw_bitmap(down, HeadPosX, HeadPosY, 0);
+		}			
+			break;
+		default:
+			break;
+	}
 }

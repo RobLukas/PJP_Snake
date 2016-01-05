@@ -1,8 +1,14 @@
 #ifndef Animation.h
 #define Animation
 
-bool finish = false;
 
+
+
+
+
+
+
+/*
 void MoveUP()
 {
 	
@@ -29,5 +35,6 @@ void MoveLeft()
 
 }
 
+*/
 
 #endif // !Animation.h
