@@ -61,16 +61,16 @@ int main()
 	ALLEGRO_BITMAP *background_game;
 	ALLEGRO_BITMAP *wall1;
 	ALLEGRO_BITMAP *wall;
+	ALLEGRO_BITMAP *head_up;
+	ALLEGRO_BITMAP *head_down;
+	ALLEGRO_BITMAP *head_right;
+	ALLEGRO_BITMAP *head_left;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_FONT *fps;
 	ALLEGRO_FONT *options_titles;
 	ALLEGRO_FONT *setting_titles;
 	ALLEGRO_FONT *titles;
 	ALLEGRO_FONT *subtitles;
-	ALLEGRO_BITMAP *head_up;
-	ALLEGRO_BITMAP *head_down;
-	ALLEGRO_BITMAP *head_right;
- 	ALLEGRO_BITMAP *head_left;
 
 	if (!al_init())
 		return -1;
@@ -101,10 +101,10 @@ int main()
 	//=========== IMAGES ===========//
 	background = al_load_bitmap("tlo1.bmp");
 	background_game = al_load_bitmap("tlo_gry.png");
-	head_right = al_load_bitmap("head_snake.bmp");
-	//head_left = al_load_bitmap("");
-	//head_up = al_load_bitmap("");
-	//head_down = al_load_bitmap("");
+	head_right = al_load_bitmap("head_snake_right.bmp");
+	head_left = al_load_bitmap("head_snake_left.bmp");
+	head_up = al_load_bitmap("head_snake_up");
+	head_down = al_load_bitmap("head_snake_down");
 	//wall1 = al_load_bitmap("wall1.bmp");
 	//wall = al_load_bitmap("wall.bmp");
 
@@ -300,10 +300,8 @@ int main()
 		{
 			Return = false;
 
-
 			if (state == MENU)
 			{
-
 				MenuScene(background, titles, subtitles, options_titles, x, y, GameFPS, fps);
 			}
 			else if (state == PLAY)
@@ -335,6 +333,12 @@ int main()
 	al_destroy_font(fps);
 	al_destroy_timer(timer);
 	al_destroy_event_queue(event_queue);
+	al_destroy_bitmap(background);
+	al_destroy_bitmap(background_game);
+	al_destroy_bitmap(head_down);
+	al_destroy_bitmap(head_up);
+	al_destroy_bitmap(head_right);
+	al_destroy_bitmap(head_left);
 	al_destroy_display(display);
 
 	return 0;
@@ -344,6 +348,7 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_bitmap(background, x, y, 0);
+	al_draw_textf(fps, al_map_rgb(100, 0, 100), 5, 5, 0, "FPS: %d", GameFPS);
 	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "SNAKE !");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Nowa gra");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 100, ALLEGRO_ALIGN_CENTRE, "Ustawienia");
@@ -351,16 +356,14 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 70, ALLEGRO_ALIGN_CENTRE, "[ENTER]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 120, ALLEGRO_ALIGN_CENTRE, "[TAB]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 495, Height / 2 + 170, ALLEGRO_ALIGN_CENTRE, "[ESC]");
-	al_draw_textf(fps, al_map_rgb(100, 0, 100), 5, 5, 0, "FPS: %d", GameFPS);
 	al_flip_display();
 }
 
-void PlayScene(ALLEGRO_BITMAP *background_game,ALLEGRO_BITMAP *head_right, int x, int y)
+void PlayScene(ALLEGRO_BITMAP *background_game, ALLEGRO_BITMAP *head_right, int x, int y)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_bitmap(background_game, x, y, 0);
-	al_draw_tinted_bitmap(head_right, al_map_rgba_f(1, 1, 255, 0), 5, 5, 0);
-	//al_draw_bitmap(head_right, 5, 5, 0);
+	MoveRight(head_right);
 	al_flip_display();
 }
 

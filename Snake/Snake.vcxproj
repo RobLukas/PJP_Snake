@@ -152,8 +152,11 @@
   <ItemGroup>
     <Image Include="body_snake.bmp" />
     <Image Include="body_snake_red.bmp" />
-    <Image Include="head_snake.bmp" />
+    <Image Include="head_snake_down.bmp" />
+    <Image Include="head_snake_left.bmp" />
     <Image Include="head_snake_red.bmp" />
+    <Image Include="head_snake_right.bmp" />
+    <Image Include="head_snake_up.bmp" />
     <Image Include="snake_tlo2.bmp" />
     <Image Include="tlo1.bmp" />
     <Image Include="tlo_gry.png" />
