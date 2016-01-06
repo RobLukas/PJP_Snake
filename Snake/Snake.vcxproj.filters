@@ -44,16 +44,16 @@
     <Image Include="head_snake_red.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="head_snake_down.bmp">
+    <Image Include="head_snake_down1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="head_snake_left.bmp">
+    <Image Include="head_snake_right1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="head_snake_right.bmp">
+    <Image Include="head_snake_up1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="head_snake_up.bmp">
+    <Image Include="head_snake_left1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

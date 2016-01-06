@@ -1,4 +1,4 @@
-#include <allegro5\allegro.h>
+﻿#include <allegro5\allegro.h>
 #include <allegro5\allegro_image.h>
 #include <allegro5\allegro_primitives.h>
 #include <allegro5\allegro_font.h>
@@ -13,26 +13,26 @@
 #include "MessageError.h"
 
 void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y);
-void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS);
+void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed);
 void GameoverScene(ALLEGRO_FONT *titles);
 void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y);
-void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down);
-void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS);
+void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, int Speed);
+void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed);
+void Developer();
 
 //=========== GLOBAL VARIABLES ===========//
 int Width = 800;
 int Height = 600;
-float FPS = 60.0;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
-bool keys[] = { false, false, false, false, false, false, false, false, false, false };
-enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w, SPACE};
+bool keys[] = { false, false, false, false, false, false, false, false, false, false, false };
+enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w, SPACE, x};
 
 enum DirectionSnake { Up, Down, Left, Right };
 int DirectionSnake = Right;
 
-int HeadPosX = 800 / 2;
-int HeadPosY = 600 / 2;
+int HeadPosX = 800 / 32 * 5 + 2;
+int HeadPosY = 600 / 32 *8 + 16;
 
 int state = MENU;
 
@@ -53,7 +53,7 @@ ALLEGRO_SAMPLE *ChangeOnRedSound = NULL;
 int main()
 {
 	//=========== VARIABLES ===========//
-
+	float FPS = 10.0;
 	bool done = false;
 	bool Return = false;
 
@@ -62,6 +62,7 @@ int main()
 	int GameFPS = 0;
 	int x = 0;
 	int y = 0;
+	int Speed = 1;
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -115,10 +116,10 @@ int main()
 	//=========== IMAGES ===========//
 	background = al_load_bitmap("tlo1.bmp");
 	background_game = al_load_bitmap("tlo_gry.png");
-	head_right = al_load_bitmap("head_snake_right.bmp");
-	head_left = al_load_bitmap("head_snake_left.bmp");
-	head_up = al_load_bitmap("head_snake_up.bmp");
-	head_down = al_load_bitmap("head_snake_down.bmp");
+	head_right = al_load_bitmap("head_snake_right1.bmp");
+	head_left = al_load_bitmap("head_snake_left1.bmp");
+	head_up = al_load_bitmap("head_snake_up1.bmp");
+	head_down = al_load_bitmap("head_snake_down1.bmp");
 	//wall1 = al_load_bitmap("wall1.bmp");
 	//wall = al_load_bitmap("wall.bmp");
 
@@ -156,12 +157,13 @@ int main()
 	al_register_event_source(event_queue, al_get_display_event_source(display));
 	al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
-	al_start_timer(timer);
-	TimeGame = al_current_time();
 
 	al_play_sample_instance(InGameSoundInst);
 	while (!done)
 	{
+
+		al_start_timer(timer);
+		TimeGame = al_current_time();
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 
@@ -200,6 +202,9 @@ int main()
 			case ALLEGRO_KEY_SPACE:
 				keys[SPACE] = true;
 				break;
+			case ALLEGRO_KEY_X:
+				keys[x] = true;
+				break;
 			}
 		}
 		else if (ev.type == ALLEGRO_EVENT_KEY_UP)
@@ -236,6 +241,9 @@ int main()
 			case ALLEGRO_KEY_SPACE:
 				keys[SPACE] = false;
 				break;
+			case ALLEGRO_KEY_X:
+				keys[x] = false;
+				break;
 			}
 		}
 		else if (ev.type == ALLEGRO_EVENT_TIMER)
@@ -266,6 +274,7 @@ int main()
 				{
 					DirectionSnake = Right;
 					keys[ESCAPE] = false;
+				
 				}
 				else if (keys[LEFT] && DirectionSnake != 3)
 				{
@@ -289,11 +298,14 @@ int main()
 				}
 				else if (keys[SPACE])
 				{
-					Sleep(200);
-					HeadPosX = 800 / 2;
-					HeadPosY = 600 / 2;
+					Sleep(30);
+					HeadPosX = 800 / 32 * 5 + 2;
+					HeadPosY = 600 / 32 * 8 + 16;
 					DirectionSnake = Right;
-
+				}
+				else if (keys[x])
+				{
+					Developer();
 				}
 			}
 			else if (state == SETTING)
@@ -311,6 +323,21 @@ int main()
 				if (keys[w])
 				{
 					al_stop_sample_instance(InGameSoundInst);
+					keys[ESCAPE] = false;
+				}
+				else if (keys[RIGHT])
+				{
+					FPS = 8.0;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[LEFT])
+				{
+					FPS = 16.0;
+					keys[ESCAPE] = false;
+				}
+				else if (keys[SPACE])
+				{
+					FPS = 10.0;
 					keys[ESCAPE] = false;
 				}
 				/*
@@ -354,7 +381,7 @@ int main()
 			}
 			else if (state == PLAY)
 			{
-				PlayScene(background_game, x, y, head_right, head_left, head_up, head_down, fps, GameFPS);
+				PlayScene(background_game, x, y, head_right, head_left, head_up, head_down, fps, GameFPS, Speed);
 			}
 			else if (state == GAMEOVER)
 			{
@@ -403,12 +430,11 @@ void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *s
 	al_flip_display();
 }
 
-void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS)
+void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed)
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	//al_draw_bitmap(background_game, x, y, 0);
-	GameRun(right, left, up, down, fps, GameFPS);
-	al_flip_display();
+	GameRun(right, left, up, down, fps, GameFPS, Speed);	
 }
 
 void GameoverScene(ALLEGRO_FONT *titles)
@@ -428,10 +454,14 @@ void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLE
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 500, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "OFF");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 435, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[Q]");
 	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 543, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[W]");
+	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 330, Height / 2 + 150, ALLEGRO_ALIGN_CENTRE, "Predkosc:        <       >");
+	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 400, Height / 2 + 190, ALLEGRO_ALIGN_CENTER, "mniejsza");
+	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 480, Height / 2 + 190, ALLEGRO_ALIGN_CENTER, "wieksza");
+	//al_draw_textf()
 	al_flip_display();
 }
 
-void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS)
+void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed)
 {
 	const int MapWidth = 25;
 	const int MapHeight = 25;
@@ -442,10 +472,10 @@ void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, AL
 	finish = true;
 	int Map[TotalMap];
 
-	DirectionMove(right, left, up, down);
+	DirectionMove(right, left, up, down, Speed);
 }
 
-void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down)
+void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, int Speed)
 {
 	int HeadXNow = 0;
 	int HeadYNow = 0;
@@ -454,33 +484,48 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 	{
 		case Right:
 		{
-			HeadXNow = HeadPosX + 5;
+			HeadXNow = HeadPosX + Speed*32;
 			HeadPosX = HeadXNow;
 			al_draw_bitmap(right, HeadPosX, HeadPosY, 0);
+			Sleep(20);
 		}
 			break;
 		case Left:
 		{
-			HeadXNow = HeadPosX - 5;
+			HeadXNow = HeadPosX - Speed*32;
 			HeadPosX = HeadXNow;
 			al_draw_bitmap(left, HeadPosX, HeadPosY, 0);
+			Sleep(20);
 		}
 			break;
 		case Up:
 		{
-			HeadYNow = HeadPosY - 5;
+			HeadYNow = HeadPosY - Speed*32;
 			HeadPosY = HeadYNow;
 			al_draw_bitmap(up, HeadPosX, HeadPosY, 0);
+			Sleep(20);
 		}
 			break;
 		case Down:
 		{
-			HeadYNow = HeadPosY + 5;
+			HeadYNow = HeadPosY + Speed*32;
 			HeadPosY = HeadYNow;
 			al_draw_bitmap(down, HeadPosX, HeadPosY, 0);
+			Sleep(20);
 		}			
 			break;
 		default:
 			break;
+	}
+}
+void Developer()
+{
+	int lineSpace = 32;
+	for (size_t i = 1; i < 25; i++)
+	{
+		al_draw_line(i*lineSpace, 0, i*lineSpace, 800, al_map_rgb(0, 255, 255), NULL);
+		al_flip_display();
+		al_draw_line(0, i*lineSpace, 800, i*lineSpace, al_map_rgb(0, 255, 255), NULL);
+		al_flip_display();
 	}
 }
