@@ -90,6 +90,16 @@ int main()
 	int Golds = 0;
 	int TimeInGame = 0;
 
+	//=========== WALLS ===========//
+	wall.x = 32;
+	wall.y = 32;
+
+	wall.dx = wall.width;
+	wall.dy = wall.height;
+
+	HeadPosX.dx = 32;
+	HeadPosY.dy = 32;
+
 	//=========== ALLEGRO VARIABLE ===========//
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -159,10 +169,9 @@ int main()
 	head_down.height = al_get_bitmap_height(head_down.image);
 	head_up.height = al_get_bitmap_height(head_up.image);
 
-	wall.dx = wall.width / 2;
-	wall.dy = wall.height / 2;
 
-	head_right.dx = head_right.width / 2;
+
+	/*head_right.dx = head_right.width / 2;
 	head_right.dy = head_right.height / 2;
 
 	head_left.dx = head_left.width / 2;
@@ -173,6 +182,7 @@ int main()
 
 	head_up.dx = head_up.width / 2;
 	head_up.dy = head_up.height / 2;
+	*/
 
 	//=========== MESSAGE ERRORS ===========//
 	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
@@ -354,9 +364,26 @@ int main()
 					HeadPosY.y = 600 / 32 * 8 + 16;
 					DirectionSnake = Right;
 				}
-				else if (keys[x])
+
+				//	al_draw_filled_rectangle(wall.x*10, wall.y + 32, wall.width*11, wall.height, al_map_rgb(-6, 0, -6));
+				if (HeadPosX.x + HeadPosX.dx > 799 &&
+					HeadPosX.x - HeadPosX.x < wall.x*10 + wall.width*11 &&
+					HeadPosY.y + HeadPosY.dy > (wall.y + 32) - wall.height &&
+					HeadPosY.y - HeadPosY.y < wall.y + 32 + wall.height)
 				{
-					Developer();
+					Collision = true;
+				}
+				else
+				{
+					Collision = false;
+				}
+				if (keys[x])
+				{
+					bound = true;
+				}
+				else
+				{
+					bound = false;
 				}
 			}
 			else if (state == SETTING)
@@ -433,6 +460,10 @@ int main()
 			else if (state == PLAY)
 			{
 				PlayScene(background_game, x, y, head_right.image, head_left.image, head_up.image, head_down.image, fps, GameFPS, Speed);
+				if (Collision)
+				{
+					al_draw_text(titles, al_map_rgb(255, 255, 255), Width / 2, 20, ALLEGRO_ALIGN_CENTRE, "COLLISION!");
+				}
 			}
 			else if (state == GAMEOVER)
 			{
@@ -485,7 +516,12 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	//al_draw_bitmap(background_game, x, y, 0);
-	al_draw_bitmap(wall.image, wall.x - wall.width / 2, wall.y - wall.height / 2, NULL);
+	//al_draw_bitmap(wall.image, wall.width / 2, wall.height / 2, NULL);
+	//al_draw_bitmap(wall.image, wall.width, wall.height, NULL);
+	al_draw_bitmap(wall.image, wall.width*10, wall.height, NULL);
+	al_draw_filled_rectangle(wall.x*10, wall.y + 32, wall.width*11, wall.height, al_map_rgb(-6, 0, -6));
+	//al_draw_bitmap(wall.image, wall.width, wall.height*6, NULL);
+	//Developer();
 	GameRun(right, left, up, down, fps, GameFPS, Speed);	
 }
 
