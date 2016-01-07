@@ -31,12 +31,28 @@ enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w, SPACE, x};
 enum DirectionSnake { Up, Down, Left, Right };
 int DirectionSnake = Right;
 
-int HeadPosX = 800 / 32 * 5 + 2;
-int HeadPosY = 600 / 32 *8 + 16;
-
 int state = MENU;
 
 bool finish;
+
+//=========== COLLISION VARIABLES ===========//
+struct Sprite
+{
+	int x;
+	int y;
+
+	int dx;
+	int dy;
+
+	int width;
+	int height;
+
+	ALLEGRO_BITMAP *image;
+};
+
+Sprite HeadPosX;
+Sprite HeadPosY;
+Sprite wall;
 
 //=========== GLOBAL VARIABLES ===========//
 
@@ -56,6 +72,11 @@ int main()
 	float FPS = 10.0;
 	bool done = false;
 	bool Return = false;
+	bool Collision = false;
+	bool bound = false;
+
+	HeadPosX.x = 800 / 32 * 5 + 2;
+	HeadPosY.y = 600 / 32 * 8 + 16;
 
 	float TimeGame = 0;
 	int frame = 0;
@@ -74,18 +95,21 @@ int main()
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_BITMAP *background;
 	ALLEGRO_BITMAP *background_game;
-	ALLEGRO_BITMAP *wall1;
-	ALLEGRO_BITMAP *wall;
-	ALLEGRO_BITMAP *head_up;
-	ALLEGRO_BITMAP *head_down;
-	ALLEGRO_BITMAP *head_right;
-	ALLEGRO_BITMAP *head_left;
+	//ALLEGRO_BITMAP *head_up;
+	//ALLEGRO_BITMAP *head_down;
+	//ALLEGRO_BITMAP *head_right;
+	//ALLEGRO_BITMAP *head_left;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_FONT *fps;
 	ALLEGRO_FONT *options_titles;
 	ALLEGRO_FONT *setting_titles;
 	ALLEGRO_FONT *titles;
 	ALLEGRO_FONT *subtitles;
+
+	Sprite head_right;
+	Sprite head_left;
+	Sprite head_up;
+	Sprite head_down;
 
 	if (!al_init())
 		return -1;
@@ -116,15 +140,42 @@ int main()
 	//=========== IMAGES ===========//
 	background = al_load_bitmap("tlo1.bmp");
 	background_game = al_load_bitmap("tlo_gry.png");
-	head_right = al_load_bitmap("head_snake_right1.bmp");
-	head_left = al_load_bitmap("head_snake_left1.bmp");
-	head_up = al_load_bitmap("head_snake_up1.bmp");
-	head_down = al_load_bitmap("head_snake_down1.bmp");
+	head_right.image = al_load_bitmap("head_snake_right1.bmp");
+	head_left.image = al_load_bitmap("head_snake_left1.bmp");
+	head_up.image = al_load_bitmap("head_snake_up1.bmp");
+	head_down.image = al_load_bitmap("head_snake_down1.bmp");
 	//wall1 = al_load_bitmap("wall1.bmp");
-	//wall = al_load_bitmap("wall.bmp");
+	wall.image = al_load_bitmap("wall.bmp");
+
+	wall.width = al_get_bitmap_height(wall.image);
+	head_right.width = al_get_bitmap_height(head_right.image);
+	head_left.width = al_get_bitmap_height(head_left.image);
+	head_down.width = al_get_bitmap_height(head_down.image);
+	head_up.width = al_get_bitmap_height(head_up.image);
+
+	wall.height = al_get_bitmap_height(wall.image);
+	head_right.height = al_get_bitmap_height(head_right.image);
+	head_left.height = al_get_bitmap_height(head_left.image);
+	head_down.height = al_get_bitmap_height(head_down.image);
+	head_up.height = al_get_bitmap_height(head_up.image);
+
+	wall.dx = wall.width / 2;
+	wall.dy = wall.height / 2;
+
+	head_right.dx = head_right.width / 2;
+	head_right.dy = head_right.height / 2;
+
+	head_left.dx = head_left.width / 2;
+	head_left.dy = head_left.height / 2;
+
+	head_down.dx = head_down.width / 2;
+	head_down.dy = head_down.height / 2;
+
+	head_up.dx = head_up.width / 2;
+	head_up.dy = head_up.height / 2;
 
 	//=========== MESSAGE ERRORS ===========//
-	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right, InGameSoundInst);
+	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
 
 	//=========== TIMER ===========//
 	event_queue = al_create_event_queue();
@@ -299,8 +350,8 @@ int main()
 				else if (keys[SPACE])
 				{
 					Sleep(30);
-					HeadPosX = 800 / 32 * 5 + 2;
-					HeadPosY = 600 / 32 * 8 + 16;
+					HeadPosX.x = 800 / 32 * 5 + 2;
+					HeadPosY.y = 600 / 32 * 8 + 16;
 					DirectionSnake = Right;
 				}
 				else if (keys[x])
@@ -381,7 +432,7 @@ int main()
 			}
 			else if (state == PLAY)
 			{
-				PlayScene(background_game, x, y, head_right, head_left, head_up, head_down, fps, GameFPS, Speed);
+				PlayScene(background_game, x, y, head_right.image, head_left.image, head_up.image, head_down.image, fps, GameFPS, Speed);
 			}
 			else if (state == GAMEOVER)
 			{
@@ -396,7 +447,6 @@ int main()
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 		}
 	}
-	al_destroy_sample_instance(SongInst);
 	al_destroy_sample_instance(InGameSoundInst);
 	al_destroy_sample(CrashSound);
 	al_destroy_sample(Song);
@@ -409,10 +459,11 @@ int main()
 	al_destroy_event_queue(event_queue);
 	al_destroy_bitmap(background);
 	al_destroy_bitmap(background_game);
-	al_destroy_bitmap(head_down);
-	al_destroy_bitmap(head_up);
-	al_destroy_bitmap(head_right);
-	al_destroy_bitmap(head_left);
+	al_destroy_bitmap(head_down.image);
+	al_destroy_bitmap(head_up.image);
+	al_destroy_bitmap(head_right.image);
+	al_destroy_bitmap(head_left.image);
+	al_destroy_bitmap(wall.image);
 	al_destroy_display(display);
 
 	return 0;
@@ -434,6 +485,7 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 {
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	//al_draw_bitmap(background_game, x, y, 0);
+	al_draw_bitmap(wall.image, wall.x - wall.width / 2, wall.y - wall.height / 2, NULL);
 	GameRun(right, left, up, down, fps, GameFPS, Speed);	
 }
 
@@ -484,33 +536,33 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 	{
 		case Right:
 		{
-			HeadXNow = HeadPosX + Speed*32;
-			HeadPosX = HeadXNow;
-			al_draw_bitmap(right, HeadPosX, HeadPosY, 0);
+			HeadXNow = HeadPosX.x + Speed*32;
+			HeadPosX.x = HeadXNow;
+			al_draw_bitmap(right, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
 		}
 			break;
 		case Left:
 		{
-			HeadXNow = HeadPosX - Speed*32;
-			HeadPosX = HeadXNow;
-			al_draw_bitmap(left, HeadPosX, HeadPosY, 0);
+			HeadXNow = HeadPosX.x - Speed*32;
+			HeadPosX.x = HeadXNow;
+			al_draw_bitmap(left, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
 		}
 			break;
 		case Up:
 		{
-			HeadYNow = HeadPosY - Speed*32;
-			HeadPosY = HeadYNow;
-			al_draw_bitmap(up, HeadPosX, HeadPosY, 0);
+			HeadYNow = HeadPosY.y - Speed*32;
+			HeadPosY.y = HeadYNow;
+			al_draw_bitmap(up, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
 		}
 			break;
 		case Down:
 		{
-			HeadYNow = HeadPosY + Speed*32;
-			HeadPosY = HeadYNow;
-			al_draw_bitmap(down, HeadPosX, HeadPosY, 0);
+			HeadYNow = HeadPosY.y + Speed*32;
+			HeadPosY.y = HeadYNow;
+			al_draw_bitmap(down, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
 		}			
 			break;
