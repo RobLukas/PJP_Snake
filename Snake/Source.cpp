@@ -103,8 +103,8 @@ int main()
 	wall.dx = wall.width;
 	wall.dy = wall.height;
 
-	HeadPosX.dx = HeadPosX.width;
-	HeadPosY.dy = HeadPosY.height;
+	HeadPosX.dx = 32;
+	HeadPosY.dy = 32;
 
 	//=========== ALLEGRO VARIABLE ===========//
 	ALLEGRO_DISPLAY *display = NULL;
@@ -166,6 +166,9 @@ int main()
 	wall.width = al_get_bitmap_width(wall.image);
 	wall.height = al_get_bitmap_height(wall.image);
 
+	HeadPosX.dx = HeadPosX.width;
+	HeadPosY.dy = HeadPosY.height;
+
 	//=========== MESSAGE ERRORS ===========//
 	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
 
@@ -176,7 +179,7 @@ int main()
 	//=========== AUDIO ===========//
 	al_reserve_samples(10);
 
- 	InGameSound = al_load_sample("ingame1.ogg");
+ 	//InGameSound = al_load_sample("ingame1.ogg");
 	//EatRed = al_load_sample("eatred.gg");
 	//EatMashroom= al_load_sample("changeonred.ogg");
 	//GameoverSong = al_load_sample("");
@@ -327,7 +330,7 @@ int main()
 					keys[DOWN] = false;
 					keys[UP] = false;
 				}
-				if (keys[DOWN] && DirectionSnake != 0)
+				else if (keys[DOWN] && DirectionSnake != 0)
 				{
 					DirectionSnake = Down;
 					keys[ESCAPE] = false;
@@ -354,11 +357,13 @@ int main()
 					DirectionSnake = Right;
 				}
 
-				//	al_draw_filled_rectangle(wall.x*10, wall.y + 32, wall.width*11, wall.height, al_map_rgb(-6, 0, -6));
-				if ((HeadPosY.y + 32 < wall.height) &&
-					(wall.y + 32 < HeadPosY.height + HeadPosY.y) &&
-					(HeadPosX.x + 32 < wall.width * 11) &&
-					(wall.x * 10 < HeadPosX.width + HeadPosX.x))
+				//	al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
+				//	al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
+				if ((HeadPosX.x < wall.x * 10) &&
+					(HeadPosX.x + 32 > wall.x * 10) &&
+					(HeadPosY.y < wall.y * 2) &&
+					(HeadPosY.y + 32 > wall.y))
+
 				{
 					Collision = true;
 				}
@@ -454,10 +459,11 @@ int main()
 				{
 					al_draw_text(titles, al_map_rgb(255, 255, 255), Width / 2, 20, ALLEGRO_ALIGN_CENTRE, "COLLISION!");
 				}
-				if (bound)
+				if (Collision)
 				{
-					al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
-					al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
+					//al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
+					//al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
+					state = GAMEOVER;
 				}
 			}
 			else if (state == GAMEOVER)
@@ -521,7 +527,6 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 
 void GameoverScene(ALLEGRO_FONT *titles)
 {
-	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "GAMEOVER");
 	al_flip_display();
 }
