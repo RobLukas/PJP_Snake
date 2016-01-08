@@ -26,7 +26,7 @@ int Height = 600;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
 bool keys[] = { false, false, false, false, false, false, false, false, false, false, false };
-enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w, SPACE, x};
+enum KEYS { UP, DOWN, LEFT, RIGHT, ESCAPE, TAB, ENTER, q, w, SPACE, z};
 
 enum DirectionSnake { Up, Down, Left, Right };
 int DirectionSnake = Right;
@@ -84,6 +84,12 @@ int main()
 	int x = 0;
 	int y = 0;
 	int Speed = 1;
+	
+	int CollisionInteger = (
+	(HeadPosY.y + 32 < wall.height) &&
+	(wall.y + 32 < HeadPosY.height + HeadPosY.y) &&
+	(HeadPosX.x + 32 < wall.width * 11) &&
+	(wall.x * 10 < HeadPosX.width + HeadPosX.x));
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -97,8 +103,8 @@ int main()
 	wall.dx = wall.width;
 	wall.dy = wall.height;
 
-	HeadPosX.dx = 32;
-	HeadPosY.dy = 32;
+	HeadPosX.dx = HeadPosX.width;
+	HeadPosY.dy = HeadPosY.height;
 
 	//=========== ALLEGRO VARIABLE ===========//
 	ALLEGRO_DISPLAY *display = NULL;
@@ -157,32 +163,8 @@ int main()
 	//wall1 = al_load_bitmap("wall1.bmp");
 	wall.image = al_load_bitmap("wall.bmp");
 
-	wall.width = al_get_bitmap_height(wall.image);
-	head_right.width = al_get_bitmap_height(head_right.image);
-	head_left.width = al_get_bitmap_height(head_left.image);
-	head_down.width = al_get_bitmap_height(head_down.image);
-	head_up.width = al_get_bitmap_height(head_up.image);
-
+	wall.width = al_get_bitmap_width(wall.image);
 	wall.height = al_get_bitmap_height(wall.image);
-	head_right.height = al_get_bitmap_height(head_right.image);
-	head_left.height = al_get_bitmap_height(head_left.image);
-	head_down.height = al_get_bitmap_height(head_down.image);
-	head_up.height = al_get_bitmap_height(head_up.image);
-
-
-
-	/*head_right.dx = head_right.width / 2;
-	head_right.dy = head_right.height / 2;
-
-	head_left.dx = head_left.width / 2;
-	head_left.dy = head_left.height / 2;
-
-	head_down.dx = head_down.width / 2;
-	head_down.dy = head_down.height / 2;
-
-	head_up.dx = head_up.width / 2;
-	head_up.dy = head_up.height / 2;
-	*/
 
 	//=========== MESSAGE ERRORS ===========//
 	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
@@ -263,8 +245,8 @@ int main()
 			case ALLEGRO_KEY_SPACE:
 				keys[SPACE] = true;
 				break;
-			case ALLEGRO_KEY_X:
-				keys[x] = true;
+			case ALLEGRO_KEY_Z:
+				keys[z] = true;
 				break;
 			}
 		}
@@ -302,8 +284,8 @@ int main()
 			case ALLEGRO_KEY_SPACE:
 				keys[SPACE] = false;
 				break;
-			case ALLEGRO_KEY_X:
-				keys[x] = false;
+			case ALLEGRO_KEY_Z:
+				keys[z] = false;
 				break;
 			}
 		}
@@ -335,22 +317,29 @@ int main()
 				{
 					DirectionSnake = Right;
 					keys[ESCAPE] = false;
-				
+					keys[DOWN] = false;
+					keys[UP] = false;
 				}
 				else if (keys[LEFT] && DirectionSnake != 3)
 				{
 					DirectionSnake = Left;
 					keys[ESCAPE] = false;
+					keys[DOWN] = false;
+					keys[UP] = false;
 				}
-				else if (keys[DOWN] && DirectionSnake != 0)
+				if (keys[DOWN] && DirectionSnake != 0)
 				{
 					DirectionSnake = Down;
 					keys[ESCAPE] = false;
+					keys[LEFT] = false;
+					keys[RIGHT] = false;
 				}
 				else if (keys[UP] && DirectionSnake != 1)
 				{
 					DirectionSnake = Up;
 					keys[ESCAPE] = false;
+					keys[LEFT] = false;
+					keys[RIGHT] = false;
 				}
 				else if (keys[ESCAPE])
 				{
@@ -366,10 +355,10 @@ int main()
 				}
 
 				//	al_draw_filled_rectangle(wall.x*10, wall.y + 32, wall.width*11, wall.height, al_map_rgb(-6, 0, -6));
-				if (HeadPosX.x + HeadPosX.dx > 799 &&
-					HeadPosX.x - HeadPosX.x < wall.x*10 + wall.width*11 &&
-					HeadPosY.y + HeadPosY.dy > (wall.y + 32) - wall.height &&
-					HeadPosY.y - HeadPosY.y < wall.y + 32 + wall.height)
+				if ((HeadPosY.y + 32 < wall.height) &&
+					(wall.y + 32 < HeadPosY.height + HeadPosY.y) &&
+					(HeadPosX.x + 32 < wall.width * 11) &&
+					(wall.x * 10 < HeadPosX.width + HeadPosX.x))
 				{
 					Collision = true;
 				}
@@ -377,9 +366,10 @@ int main()
 				{
 					Collision = false;
 				}
-				if (keys[x])
+				if (keys[z])
 				{
 					bound = true;
+
 				}
 				else
 				{
@@ -403,7 +393,7 @@ int main()
 					al_stop_sample_instance(InGameSoundInst);
 					keys[ESCAPE] = false;
 				}
-				else if (keys[RIGHT])
+				if (keys[RIGHT])
 				{
 					FPS = 8.0;
 					keys[ESCAPE] = false;
@@ -464,6 +454,11 @@ int main()
 				{
 					al_draw_text(titles, al_map_rgb(255, 255, 255), Width / 2, 20, ALLEGRO_ALIGN_CENTRE, "COLLISION!");
 				}
+				if (bound)
+				{
+					al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
+					al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
+				}
 			}
 			else if (state == GAMEOVER)
 			{
@@ -519,7 +514,6 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 	//al_draw_bitmap(wall.image, wall.width / 2, wall.height / 2, NULL);
 	//al_draw_bitmap(wall.image, wall.width, wall.height, NULL);
 	al_draw_bitmap(wall.image, wall.width*10, wall.height, NULL);
-	al_draw_filled_rectangle(wall.x*10, wall.y + 32, wall.width*11, wall.height, al_map_rgb(-6, 0, -6));
 	//al_draw_bitmap(wall.image, wall.width, wall.height*6, NULL);
 	//Developer();
 	GameRun(right, left, up, down, fps, GameFPS, Speed);	
