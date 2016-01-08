@@ -14,10 +14,13 @@
 
 void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y);
 void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed);
-void GameoverScene(ALLEGRO_FONT *titles);
+void GameoverScene(ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitlesover);
 void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y);
 void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, int Speed);
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed);
+void Walls();
+void CollisionWalls();
+//void CollisionObject(int w, int h);
 void Developer();
 
 //=========== GLOBAL VARIABLES ===========//
@@ -34,6 +37,7 @@ int DirectionSnake = Right;
 int state = MENU;
 
 bool finish;
+bool Collision = false;
 
 //=========== COLLISION VARIABLES ===========//
 struct Sprite
@@ -72,7 +76,7 @@ int main()
 	float FPS = 10.0;
 	bool done = false;
 	bool Return = false;
-	bool Collision = false;
+
 	bool bound = false;
 
 	HeadPosX.x = 800 / 32 * 5 + 2;
@@ -84,12 +88,6 @@ int main()
 	int x = 0;
 	int y = 0;
 	int Speed = 1;
-	
-	int CollisionInteger = (
-	(HeadPosY.y + 32 < wall.height) &&
-	(wall.y + 32 < HeadPosY.height + HeadPosY.y) &&
-	(HeadPosX.x + 32 < wall.width * 11) &&
-	(wall.x * 10 < HeadPosX.width + HeadPosX.x));
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -117,10 +115,12 @@ int main()
 	//ALLEGRO_BITMAP *head_left;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_FONT *fps;
+	ALLEGRO_FONT *titlesover;
 	ALLEGRO_FONT *options_titles;
 	ALLEGRO_FONT *setting_titles;
 	ALLEGRO_FONT *titles;
 	ALLEGRO_FONT *subtitles;
+	ALLEGRO_FONT *subtitlesover;
 
 	Sprite head_right;
 	Sprite head_left;
@@ -152,6 +152,8 @@ int main()
 	setting_titles = al_load_font("BuxtonSketch.ttf", 55, NULL);
 	options_titles = al_load_font("BuxtonSketch.ttf", 10, NULL);
 	fps = al_load_font("arial.ttf", 13, NULL);
+	titlesover = al_load_font("arial.ttf", 70, NULL);
+	subtitlesover = al_load_font("arial.ttf", 20, NULL);
 
 	//=========== IMAGES ===========//
 	background = al_load_bitmap("tlo1.bmp");
@@ -207,7 +209,6 @@ int main()
 	al_play_sample_instance(InGameSoundInst);
 	while (!done)
 	{
-
 		al_start_timer(timer);
 		TimeGame = al_current_time();
 		ALLEGRO_EVENT ev;
@@ -320,29 +321,21 @@ int main()
 				{
 					DirectionSnake = Right;
 					keys[ESCAPE] = false;
-					keys[DOWN] = false;
-					keys[UP] = false;
 				}
 				else if (keys[LEFT] && DirectionSnake != 3)
 				{
 					DirectionSnake = Left;
 					keys[ESCAPE] = false;
-					keys[DOWN] = false;
-					keys[UP] = false;
 				}
 				else if (keys[DOWN] && DirectionSnake != 0)
 				{
 					DirectionSnake = Down;
 					keys[ESCAPE] = false;
-					keys[LEFT] = false;
-					keys[RIGHT] = false;
 				}
 				else if (keys[UP] && DirectionSnake != 1)
 				{
 					DirectionSnake = Up;
 					keys[ESCAPE] = false;
-					keys[LEFT] = false;
-					keys[RIGHT] = false;
 				}
 				else if (keys[ESCAPE])
 				{
@@ -357,24 +350,10 @@ int main()
 					DirectionSnake = Right;
 				}
 
-				//	al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
-				//	al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
-				if ((HeadPosX.x < wall.x * 10) &&
-					(HeadPosX.x + 32 > wall.x * 10) &&
-					(HeadPosY.y < wall.y * 2) &&
-					(HeadPosY.y + 32 > wall.y))
-
-				{
-					Collision = true;
-				}
-				else
-				{
-					Collision = false;
-				}
+				CollisionWalls();
 				if (keys[z])
 				{
 					bound = true;
-
 				}
 				else
 				{
@@ -434,8 +413,11 @@ int main()
 					state = MENU;
 					keys[ESCAPE] = false;
 				}
-				if (keys[ENTER])
+				if (keys[SPACE])
 				{
+					al_clear_to_color(al_map_rgb(0, 0, 0));
+					HeadPosX.x = 800 / 32 * 5 + 2;
+					HeadPosY.y = 600 / 32 * 8 + 16;
 					state = PLAY;
 					keys[ESCAPE] = false;
 				}
@@ -447,9 +429,10 @@ int main()
 
 			if (state == MENU)
 			{
-				al_clear_to_color(al_map_rgb(0, 0, 0));
-				al_draw_bitmap(background, x, y, 0);
-
+				Collision = false;
+				HeadPosX.x = 800 / 32 * 5 + 2;
+				HeadPosY.y = 600 / 32 * 8 + 16;
+				DirectionSnake = Right;
 				MenuScene(background, titles, subtitles, options_titles, x, y);
 			}
 			else if (state == PLAY)
@@ -461,15 +444,15 @@ int main()
 				}
 				if (Collision)
 				{
-					//al_draw_filled_rectangle(wall.x * 10, wall.y + 32, wall.width * 11, wall.height, al_map_rgb(-6, 0, -6));
-					//al_draw_filled_rectangle(HeadPosX.x + 32, HeadPosY.y + 32, HeadPosX.width + HeadPosX.x, HeadPosY.height + HeadPosY.y, al_map_rgb(-6, 0, -6));
 					state = GAMEOVER;
 				}
 			}
 			else if (state == GAMEOVER)
 			{
+				Collision = false;
+				DirectionSnake = Right;
 				al_stop_sample_instance(InGameSoundInst);
-				GameoverScene(titles);
+				GameoverScene(titlesover, subtitlesover);
 			}
 			else if (state = SETTING)
 			{
@@ -503,6 +486,8 @@ int main()
 
 void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y)
 {
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_bitmap(background, x, y, 0);
 	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "SNAKE !"); 
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Nowa gra");
 	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 100, ALLEGRO_ALIGN_CENTRE, "Ustawienia");
@@ -519,15 +504,17 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 	//al_draw_bitmap(background_game, x, y, 0);
 	//al_draw_bitmap(wall.image, wall.width / 2, wall.height / 2, NULL);
 	//al_draw_bitmap(wall.image, wall.width, wall.height, NULL);
-	al_draw_bitmap(wall.image, wall.width*10, wall.height, NULL);
+	Walls();
 	//al_draw_bitmap(wall.image, wall.width, wall.height*6, NULL);
 	//Developer();
 	GameRun(right, left, up, down, fps, GameFPS, Speed);	
 }
 
-void GameoverScene(ALLEGRO_FONT *titles)
+void GameoverScene(ALLEGRO_FONT *titlesover, ALLEGRO_FONT *subtitlesover)
 {
-	al_draw_textf(titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "GAMEOVER");
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_textf(titlesover, al_map_rgb(255, 0, 255), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "GAMEOVER");
+	al_draw_textf(subtitlesover, al_map_rgb(255, 0, 255), Width /2, Height - 150, ALLEGRO_ALIGN_CENTRE, "Wcisnij [ESC] aby wejsc do Menu lub Spacje aby zagrac ponownie.");
 	al_flip_display();
 }
 
@@ -616,3 +603,133 @@ void Developer()
 		al_flip_display();
 	}
 }
+
+void Walls()
+{
+	al_draw_bitmap(wall.image, wall.width * 10, wall.height * 1, NULL);
+	al_draw_bitmap(wall.image, wall.width * 9, wall.height * 8, NULL);
+	al_draw_bitmap(wall.image, wall.width * 9, wall.height * 12, NULL);
+	al_draw_bitmap(wall.image, wall.width * 15, wall.height * 8, NULL);
+	al_draw_bitmap(wall.image, wall.width * 15, wall.height * 12, NULL);
+	al_draw_bitmap(wall.image, wall.width * 5, wall.height * 7, NULL);
+	al_draw_bitmap(wall.image, wall.width * 20, wall.height * 20, NULL);
+	al_draw_bitmap(wall.image, wall.width * 20, wall.height * 5, NULL);
+	al_draw_bitmap(wall.image, wall.width * 5, wall.height * 20, NULL);
+	al_draw_bitmap(wall.image, wall.width * 18, wall.height * 5, NULL);
+	al_draw_bitmap(wall.image, wall.width * 2, wall.height * 2, NULL);
+	al_draw_bitmap(wall.image, wall.width * 3, wall.height * 17, NULL);
+	al_draw_bitmap(wall.image, wall.width * 16, wall.height * 16, NULL);
+	al_draw_bitmap(wall.image, wall.width * 7, wall.height * 17, NULL);
+}
+
+void CollisionWalls()
+{
+	int Collision1 = (
+		(HeadPosX.x < wall.x * 10) &&
+		(HeadPosX.x + 32 > wall.x * 10) &&
+		(HeadPosY.y < wall.y * 2) &&
+		(HeadPosY.y + 32 > wall.y));
+
+	int Collision2 = (
+		(HeadPosX.x < wall.x * 9) &&
+		(HeadPosX.x + 32 > wall.x * 9) &&
+		(HeadPosY.y < wall.y * 9) &&
+		(HeadPosY.y + 32 > wall.y * 8));
+
+	int Collision3 = (
+		(HeadPosX.x < wall.x * 9) &&
+		(HeadPosX.x + 32 > wall.x * 9) &&
+		(HeadPosY.y < wall.y * 13) &&
+		(HeadPosY.y + 32 > wall.y * 12));
+
+	int Collision4 = (
+		(HeadPosX.x < wall.x * 15) &&
+		(HeadPosX.x + 32 > wall.x * 15) &&
+		(HeadPosY.y < wall.y * 9) &&
+		(HeadPosY.y + 32 > wall.y * 8));
+
+	int Collision5 = (
+		(HeadPosX.x < wall.x * 15) &&
+		(HeadPosX.x + 32 > wall.x * 15) &&
+		(HeadPosY.y < wall.y * 13) &&
+		(HeadPosY.y + 32 > wall.y * 12));
+
+	int Collision6 = (
+		(HeadPosX.x < wall.x * 5) &&
+		(HeadPosX.x + 32 > wall.x * 5) &&
+		(HeadPosY.y < wall.y * 8) &&
+		(HeadPosY.y + 32 > wall.y * 7));
+
+	int Collision7 = (
+		(HeadPosX.x < wall.x * 20) &&
+		(HeadPosX.x + 32 > wall.x * 20) &&
+		(HeadPosY.y < wall.y * 21) &&
+		(HeadPosY.y + 32 > wall.y * 20));
+
+	int Collision8 = (
+		(HeadPosX.x < wall.x * 20) &&
+		(HeadPosX.x + 32 > wall.x * 20) &&
+		(HeadPosY.y < wall.y * 6) &&
+		(HeadPosY.y + 32 > wall.y * 5));
+
+	int Collision9 = (
+		(HeadPosX.x < wall.x * 5) &&
+		(HeadPosX.x + 32 > wall.x * 5) &&
+		(HeadPosY.y < wall.y * 21) &&
+		(HeadPosY.y + 32 > wall.y * 20));
+
+	int Collision10 = (
+		(HeadPosX.x < wall.x * 18) &&
+		(HeadPosX.x + 32 > wall.x * 18) &&
+		(HeadPosY.y < wall.y * 6) &&
+		(HeadPosY.y + 32 > wall.y * 5));
+
+	int Collision11 = (
+		(HeadPosX.x < wall.x * 2) &&
+		(HeadPosX.x + 32 > wall.x * 2) &&
+		(HeadPosY.y < wall.y * 3) &&
+		(HeadPosY.y + 32 > wall.y * 2));
+
+	int Collision12 = (
+		(HeadPosX.x < wall.x * 3) &&
+		(HeadPosX.x + 32 > wall.x * 3) &&
+		(HeadPosY.y < wall.y * 18) &&
+		(HeadPosY.y + 32 > wall.y * 17));
+
+	int Collision13 = (
+		(HeadPosX.x < wall.x * 16) &&
+		(HeadPosX.x + 32 > wall.x * 16) &&
+		(HeadPosY.y < wall.y * 17) &&
+		(HeadPosY.y + 32 > wall.y * 16));
+
+	int Collision14 = (
+		(HeadPosX.x < wall.x * 7) &&
+		(HeadPosX.x + 32 > wall.x * 7) &&
+		(HeadPosY.y < wall.y * 18) &&
+		(HeadPosY.y + 32 > wall.y * 17));
+
+	if (Collision1 || Collision2 || Collision3 ||
+		Collision4 || Collision5 || Collision6 ||
+		Collision7 || Collision8 || Collision9 || 
+		Collision10 || Collision11 || Collision12 || 
+		Collision13 || Collision14)
+	{
+		Collision = true;
+		state = GAMEOVER;
+	}
+	else
+	{
+		Collision = false;
+	}
+}
+
+/*
+bool CollisionObject(int w, int h)
+{
+	int Collision = (
+		(HeadPosX.x < wall.x * h) &&
+		(HeadPosX.x + 32 > wall.x * h) &&
+		(HeadPosY.y < wall.y * w) &&
+		(HeadPosY.y + 32 > wall.y));
+}
+*/
