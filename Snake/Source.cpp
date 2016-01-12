@@ -24,8 +24,15 @@ void CollisionWalls();
 void Developer();
 
 //=========== GLOBAL VARIABLES ===========//
-int Width = 800;
-int Height = 600;
+const int Width = 800;
+const int Height = 600;
+
+const int mapW = (Width/32);
+const int mapH = (Height/24);
+
+//const int SIZE = mapW * mapH;
+int Map[mapW][mapH];
+int Body = 2;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
 bool keys[] = { false, false, false, false, false, false, false, false, false, false, false };
@@ -438,10 +445,12 @@ int main()
 			else if (state == PLAY)
 			{
 				PlayScene(background_game, x, y, head_right.image, head_left.image, head_up.image, head_down.image, fps, GameFPS, Speed);
+				/*
 				if (Collision)
 				{
 					al_draw_text(titles, al_map_rgb(255, 255, 255), Width / 2, 20, ALLEGRO_ALIGN_CENTRE, "COLLISION!");
 				}
+				*/
 				if (Collision)
 				{
 					state = GAMEOVER;
@@ -537,15 +546,8 @@ void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLE
 
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed)
 {
-	const int MapWidth = 25;
-	const int MapHeight = 25;
-	const int TotalMap = MapHeight * MapHeight;
-
 	al_draw_textf(fps, al_map_rgb(100, 0, 100), 5, 5, 0, "FPS: %d", GameFPS);
-
 	finish = true;
-	int Map[TotalMap];
-
 	DirectionMove(right, left, up, down, Speed);
 }
 
@@ -553,12 +555,20 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 {
 	int HeadXNow = 0;
 	int HeadYNow = 0;
-
+	int HeadPosNowX = 0;
+	int HeadPosNowY = 0;
+	
 	switch (DirectionSnake)
 	{
 		case Right:
 		{
-			HeadXNow = HeadPosX.x + Speed*32;
+			HeadPosNowX = HeadPosX.x;
+			HeadXNow = HeadPosNowX + Speed*32;
+			if (HeadPosNowX > 767)
+			{
+				//HeadXNow = 0;
+				Collision = true;
+			}
 			HeadPosX.x = HeadXNow;
 			al_draw_bitmap(right, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
@@ -566,7 +576,13 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			break;
 		case Left:
 		{
-			HeadXNow = HeadPosX.x - Speed*32;
+			HeadPosNowX = HeadPosX.x;
+			HeadXNow = HeadPosNowX - Speed*32;
+			if (HeadPosNowX < 0)
+			{
+				//HeadXNow = 767;
+				Collision = true;
+			}
 			HeadPosX.x = HeadXNow;
 			al_draw_bitmap(left, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
@@ -574,7 +590,13 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			break;
 		case Up:
 		{
-			HeadYNow = HeadPosY.y - Speed*32;
+			HeadPosNowY = HeadPosY.y;
+			HeadYNow = HeadPosNowY - Speed*32;
+			if (HeadPosNowY < 32)
+			{
+				//HeadYNow = 576;
+				Collision = true;
+			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(up, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
@@ -582,7 +604,13 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			break;
 		case Down:
 		{
-			HeadYNow = HeadPosY.y + Speed*32;
+			HeadPosNowY = HeadPosY.y;
+			HeadYNow = HeadPosNowY + Speed*32;
+			if (HeadPosNowY > 576)
+			{
+				//HeadYNow = 0;
+				Collision = true;
+			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(down, HeadPosX.x, HeadPosY.y, 0);
 			Sleep(20);
@@ -620,6 +648,29 @@ void Walls()
 	al_draw_bitmap(wall.image, wall.width * 3, wall.height * 17, NULL);
 	al_draw_bitmap(wall.image, wall.width * 16, wall.height * 16, NULL);
 	al_draw_bitmap(wall.image, wall.width * 7, wall.height * 17, NULL);
+}
+
+//void DirectionByWall()
+//{
+//	if()
+//}
+
+void Food()
+{
+
+	int x = 0;
+	int y = 0;
+	do
+	{
+		// Generate random x and y values within the map
+		x = rand() % (mapW - 2) + 1;
+		y = rand() % (mapH - 2) + 1;
+
+		// If location is not free try again
+	} while (Map[x + y * mapW] != 0);
+
+	// Place new food
+	//Map[x + y * mapW] = -2;
 }
 
 void CollisionWalls()
