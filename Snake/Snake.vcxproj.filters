@@ -72,9 +72,6 @@
     <ClInclude Include="MessageError.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ingame1.ogg">

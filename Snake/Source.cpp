@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <cmath>
 #include <time.h>
-#include "Animation.h"
 #include "MessageError.h"
 
 void MenuScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *options_titles, int x, int y);
@@ -20,15 +19,14 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_FONT *fps, int GameFPS, int Speed);
 void Walls();
 void CollisionWalls();
-//void CollisionObject(int w, int h);
 void Developer();
 
 //=========== GLOBAL VARIABLES ===========//
 const int Width = 800;
-const int Height = 600;
+const int Height = 800;
 
 const int mapW = (Width/32);
-const int mapH = (Height/24);
+const int mapH = (Height/32);
 
 //const int SIZE = mapW * mapH;
 int Map[mapW][mapH];
@@ -86,8 +84,8 @@ int main()
 
 	bool bound = false;
 
-	HeadPosX.x = 800 / 32 * 5 + 2;
-	HeadPosY.y = 600 / 32 * 8 + 16;
+	HeadPosX.x = (Width / 32) * 5;
+	HeadPosY.y = (Height / 32) * 5;
 
 	float TimeGame = 0;
 	int frame = 0;
@@ -352,8 +350,8 @@ int main()
 				else if (keys[SPACE])
 				{
 					Sleep(30);
-					HeadPosX.x = 800 / 32 * 5 + 2;
-					HeadPosY.y = 600 / 32 * 8 + 16;
+					HeadPosX.x = (Width / 32) * 5;
+					HeadPosY.y = (Height / 32) * 5;
 					DirectionSnake = Right;
 				}
 
@@ -423,8 +421,8 @@ int main()
 				if (keys[SPACE])
 				{
 					al_clear_to_color(al_map_rgb(0, 0, 0));
-					HeadPosX.x = 800 / 32 * 5 + 2;
-					HeadPosY.y = 600 / 32 * 8 + 16;
+					HeadPosX.x = (Width / 32) * 5;
+					HeadPosY.y = (Height / 32) * 5;
 					state = PLAY;
 					keys[ESCAPE] = false;
 				}
@@ -437,20 +435,14 @@ int main()
 			if (state == MENU)
 			{
 				Collision = false;
-				HeadPosX.x = 800 / 32 * 5 + 2;
-				HeadPosY.y = 600 / 32 * 8 + 16;
+				HeadPosX.x = (Width / 32) * 5;
+				HeadPosY.y = (Height / 32) * 5;
 				DirectionSnake = Right;
 				MenuScene(background, titles, subtitles, options_titles, x, y);
 			}
 			else if (state == PLAY)
 			{
 				PlayScene(background_game, x, y, head_right.image, head_left.image, head_up.image, head_down.image, fps, GameFPS, Speed);
-				/*
-				if (Collision)
-				{
-					al_draw_text(titles, al_map_rgb(255, 255, 255), Width / 2, 20, ALLEGRO_ALIGN_CENTRE, "COLLISION!");
-				}
-				*/
 				if (Collision)
 				{
 					state = GAMEOVER;
@@ -513,6 +505,14 @@ void PlayScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *ri
 	//al_draw_bitmap(background_game, x, y, 0);
 	//al_draw_bitmap(wall.image, wall.width / 2, wall.height / 2, NULL);
 	//al_draw_bitmap(wall.image, wall.width, wall.height, NULL);
+	int lineSpace = 32;
+	for (size_t i = 1; i < 25; i++)
+	{
+		al_draw_line(i*lineSpace, 0, i*lineSpace, 800, al_map_rgb(0, 255, 255), NULL);
+		al_flip_display();
+		al_draw_line(0, i*lineSpace, 800, i*lineSpace, al_map_rgb(0, 255, 255), NULL);
+		al_flip_display();
+	}
 	Walls();
 	//al_draw_bitmap(wall.image, wall.width, wall.height*6, NULL);
 	//Developer();
@@ -563,7 +563,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		case Right:
 		{
 			HeadPosNowX = HeadPosX.x;
-			HeadXNow = HeadPosNowX + Speed*32;
+			HeadXNow = HeadPosNowX + 32;
 			if (HeadPosNowX > 767)
 			{
 				//HeadXNow = 0;
@@ -577,7 +577,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		case Left:
 		{
 			HeadPosNowX = HeadPosX.x;
-			HeadXNow = HeadPosNowX - Speed*32;
+			HeadXNow = HeadPosNowX - 32;
 			if (HeadPosNowX < 0)
 			{
 				//HeadXNow = 767;
@@ -591,8 +591,8 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		case Up:
 		{
 			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY - Speed*32;
-			if (HeadPosNowY < 32)
+			HeadYNow = HeadPosNowY - 32;
+			if (HeadPosNowY < 0)
 			{
 				//HeadYNow = 576;
 				Collision = true;
@@ -605,8 +605,8 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		case Down:
 		{
 			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY + Speed*32;
-			if (HeadPosNowY > 576)
+			HeadYNow = HeadPosNowY + 32;
+			if (HeadPosNowY > 767)
 			{
 				//HeadYNow = 0;
 				Collision = true;
@@ -620,6 +620,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			break;
 	}
 }
+
 void Developer()
 {
 	int lineSpace = 32;
@@ -657,7 +658,6 @@ void Walls()
 
 void Food()
 {
-
 	int x = 0;
 	int y = 0;
 	do
@@ -773,14 +773,3 @@ void CollisionWalls()
 		Collision = false;
 	}
 }
-
-/*
-bool CollisionObject(int w, int h)
-{
-	int Collision = (
-		(HeadPosX.x < wall.x * h) &&
-		(HeadPosX.x + 32 > wall.x * h) &&
-		(HeadPosY.y < wall.y * w) &&
-		(HeadPosY.y + 32 > wall.y));
-}
-*/

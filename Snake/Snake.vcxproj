@@ -169,7 +169,6 @@
     <Font Include="TEMPSITC.TTF" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h" />
     <ClInclude Include="MessageError.h" />
   </ItemGroup>
   <ItemGroup>
