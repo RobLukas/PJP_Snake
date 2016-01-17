@@ -29,7 +29,8 @@ const int mapW = (Width/25);
 const int mapH = (Height/25);
 
 //const int SIZE = mapW * mapH;
-int Map[mapW][mapH];
+
+//int Map[SIZE];
 int Body = 2;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
@@ -94,16 +95,18 @@ int main()
 	int y = 0;
 	int Speed = 1;
 
-	/////////////////////////////////
+	HeadPosX.dx = 32;
+	HeadPosY.dx = 32;
 
-	for (int i = 0; i < 25; i++)
+/*	for (int i = 32; i < 800; i += 32)
 	{
-		Map[i][mapH] += 32;
-		for (int i = 0; i < 25; i++)
+		for (int j = 32; j < 800; j+=32)
 		{
-			Map[mapW][i] += 32;
+			HeadPosX.dx = Map[i][mapH];
+			HeadPosY.dy = Map[mapW][j];
 		}
 	}
+	*/
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -117,18 +120,14 @@ int main()
 	wall.dx = wall.width;
 	wall.dy = wall.height;
 
-	HeadPosX.dx = 32;
-	HeadPosY.dy = 32;
+	//HeadPosX.dx = 32;
+	//HeadPosY.dy = 32;
 
 	//=========== ALLEGRO VARIABLE ===========//
 	ALLEGRO_DISPLAY *display = NULL;
 	ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 	ALLEGRO_BITMAP *background;
 	ALLEGRO_BITMAP *background_game;
-	//ALLEGRO_BITMAP *head_up;
-	//ALLEGRO_BITMAP *head_down;
-	//ALLEGRO_BITMAP *head_right;
-	//ALLEGRO_BITMAP *head_left;
 	ALLEGRO_TIMER *timer = NULL;
 	ALLEGRO_FONT *fps;
 	ALLEGRO_FONT *titlesover;
@@ -361,8 +360,8 @@ int main()
 				else if (keys[SPACE])
 				{
 					Sleep(30);
-					HeadPosX.x = (Width / 25) * 5;
-					HeadPosY.y = (Height / 25) * 5;
+ 					//HeadPosX.x = Map[5][5];
+					//HeadPosY.y = Map[5][5];
 					DirectionSnake = Right;
 				}
 
@@ -568,6 +567,8 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 	int HeadYNow = 0;
 	int HeadPosNowX = 0;
 	int HeadPosNowY = 0;
+	int BodySnakeX = 0;
+	int BodySnakeY = 0;
 	
 	switch (DirectionSnake)
 	{
@@ -575,6 +576,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		{
 			HeadPosNowX = HeadPosX.x;
 			HeadXNow = HeadPosNowX + mapW;
+
 			if (HeadPosNowX > 767)
 			{
 				//HeadXNow = 0;
@@ -658,12 +660,7 @@ void Walls()
 	al_draw_bitmap(wall.image, wall.width * 7, wall.height * 17, NULL);
 }
 
-//void DirectionByWall()
-//{
-//	if()
-//}
-
-void Food()
+/*void Food()
 {
 	int x = 0;
 	int y = 0;
@@ -678,7 +675,7 @@ void Food()
 
 	// Place new food
 	//Map[x + y * mapW] = -2;
-}
+}*/
 
 void CollisionWalls()
 {
@@ -779,4 +776,15 @@ void CollisionWalls()
 	{
 		Collision = false;
 	}
+}
+
+void test()
+{
+
+}
+
+void MoveSnake()
+{
+//	int HeadXNow = Map[][];
+//	int HeadYNow = 0;
 }
