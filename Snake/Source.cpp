@@ -25,8 +25,8 @@ void Developer();
 const int Width = 800;
 const int Height = 800;
 
-const int mapW = (Width/32);
-const int mapH = (Height/32);
+const int mapW = (Width/25);
+const int mapH = (Height/25);
 
 //const int SIZE = mapW * mapH;
 int Map[mapW][mapH];
@@ -84,8 +84,8 @@ int main()
 
 	bool bound = false;
 
-	HeadPosX.x = (Width / 32) * 5;
-	HeadPosY.y = (Height / 32) * 5;
+	HeadPosX.x = (Width / 25) * 5;
+	HeadPosY.y = (Height / 25) * 5;
 
 	float TimeGame = 0;
 	int frame = 0;
@@ -93,6 +93,17 @@ int main()
 	int x = 0;
 	int y = 0;
 	int Speed = 1;
+
+	/////////////////////////////////
+
+	for (int i = 0; i < 25; i++)
+	{
+		Map[i][mapH] += 32;
+		for (int i = 0; i < 25; i++)
+		{
+			Map[mapW][i] += 32;
+		}
+	}
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -350,8 +361,8 @@ int main()
 				else if (keys[SPACE])
 				{
 					Sleep(30);
-					HeadPosX.x = (Width / 32) * 5;
-					HeadPosY.y = (Height / 32) * 5;
+					HeadPosX.x = (Width / 25) * 5;
+					HeadPosY.y = (Height / 25) * 5;
 					DirectionSnake = Right;
 				}
 
@@ -421,8 +432,8 @@ int main()
 				if (keys[SPACE])
 				{
 					al_clear_to_color(al_map_rgb(0, 0, 0));
-					HeadPosX.x = (Width / 32) * 5;
-					HeadPosY.y = (Height / 32) * 5;
+					HeadPosX.x = (Width / 25) * 5;
+					HeadPosY.y = (Height / 25) * 5;
 					state = PLAY;
 					keys[ESCAPE] = false;
 				}
@@ -435,8 +446,8 @@ int main()
 			if (state == MENU)
 			{
 				Collision = false;
-				HeadPosX.x = (Width / 32) * 5;
-				HeadPosY.y = (Height / 32) * 5;
+				HeadPosX.x = (Width / 25) * 5;
+				HeadPosY.y = (Height / 25) * 5;
 				DirectionSnake = Right;
 				MenuScene(background, titles, subtitles, options_titles, x, y);
 			}
@@ -563,7 +574,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		case Right:
 		{
 			HeadPosNowX = HeadPosX.x;
-			HeadXNow = HeadPosNowX + 32;
+			HeadXNow = HeadPosNowX + mapW;
 			if (HeadPosNowX > 767)
 			{
 				//HeadXNow = 0;
@@ -571,13 +582,12 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosX.x = HeadXNow;
 			al_draw_bitmap(right, HeadPosX.x, HeadPosY.y, 0);
-			Sleep(20);
 		}
 			break;
 		case Left:
 		{
 			HeadPosNowX = HeadPosX.x;
-			HeadXNow = HeadPosNowX - 32;
+			HeadXNow = HeadPosNowX - mapW;
 			if (HeadPosNowX < 0)
 			{
 				//HeadXNow = 767;
@@ -585,13 +595,12 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosX.x = HeadXNow;
 			al_draw_bitmap(left, HeadPosX.x, HeadPosY.y, 0);
-			Sleep(20);
 		}
 			break;
 		case Up:
 		{
 			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY - 32;
+			HeadYNow = HeadPosNowY - mapH;
 			if (HeadPosNowY < 0)
 			{
 				//HeadYNow = 576;
@@ -599,13 +608,12 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(up, HeadPosX.x, HeadPosY.y, 0);
-			Sleep(20);
 		}
 			break;
 		case Down:
 		{
 			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY + 32;
+			HeadYNow = HeadPosNowY + mapH;
 			if (HeadPosNowY > 767)
 			{
 				//HeadYNow = 0;
@@ -613,7 +621,6 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(down, HeadPosX.x, HeadPosY.y, 0);
-			Sleep(20);
 		}			
 			break;
 		default:
