@@ -20,17 +20,19 @@ void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, AL
 void Walls();
 void CollisionWalls();
 void Developer();
+void MoveSnake(int x, int y);
 
 //=========== GLOBAL VARIABLES ===========//
 const int Width = 800;
 const int Height = 800;
 
-const int mapW = (Width/25);
-const int mapH = (Height/25);
+const int Pixels = 32;
 
-//const int SIZE = mapW * mapH;
+const int mapW = (Width / Pixels);
+const int mapH = (Height / Pixels);
 
-//int Map[SIZE];
+int MAP[mapW*mapH];
+
 int Body = 2;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
@@ -60,8 +62,10 @@ struct Sprite
 	ALLEGRO_BITMAP *image;
 };
 
-Sprite HeadPosX;
-Sprite HeadPosY;
+Sprite HeadPosition;
+Sprite FoodX;
+Sprite FoodY;
+Sprite BodySnake;
 Sprite wall;
 
 //=========== GLOBAL VARIABLES ===========//
@@ -85,8 +89,8 @@ int main()
 
 	bool bound = false;
 
-	HeadPosX.x = (Width / 25) * 5;
-	HeadPosY.y = (Height / 25) * 5;
+	HeadPosition.x = (Width / mapW) * 5;
+	HeadPosition.y = (Height / mapH) * 5;
 
 	float TimeGame = 0;
 	int frame = 0;
@@ -94,9 +98,6 @@ int main()
 	int x = 0;
 	int y = 0;
 	int Speed = 1;
-
-	HeadPosX.dx = 32;
-	HeadPosY.dx = 32;
 
 	//=========== VARIABLES ACHIEVEMENTS ===========//
 	int Points = 0;
@@ -109,9 +110,6 @@ int main()
 
 	wall.dx = wall.width;
 	wall.dy = wall.height;
-
-	//HeadPosX.dx = 32;
-	//HeadPosY.dy = 32;
 
 	//=========== ALLEGRO VARIABLE ===========//
 	ALLEGRO_DISPLAY *display = NULL;
@@ -174,8 +172,8 @@ int main()
 	wall.width = al_get_bitmap_width(wall.image);
 	wall.height = al_get_bitmap_height(wall.image);
 
-	HeadPosX.dx = HeadPosX.width;
-	HeadPosY.dy = HeadPosY.height;
+	HeadPosition.dx = HeadPosition.width;
+	HeadPosition.dy = HeadPosition.height;
 
 	//=========== MESSAGE ERRORS ===========//
 	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
@@ -351,8 +349,9 @@ int main()
 				else if (keys[SPACE])
 				{
 					Sleep(30);
- 					//HeadPosX.x = Map[5][5];
-					//HeadPosY.y = Map[5][5];
+					HeadPosition.x = (Width / mapW) * 5;
+					HeadPosition.y = (Height / mapH) * 5;
+					MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 					DirectionSnake = Right;
 				}
 
@@ -422,8 +421,9 @@ int main()
 				if (keys[SPACE])
 				{
 					al_clear_to_color(al_map_rgb(0, 0, 0));
-					HeadPosX.x = (Width / 25) * 5;
-					HeadPosY.y = (Height / 25) * 5;
+					HeadPosition.x = (Width / mapW) * 5;
+					HeadPosition.y = (Height / mapH) * 5;
+					MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 					state = PLAY;
 					keys[ESCAPE] = false;
 				}
@@ -436,8 +436,9 @@ int main()
 			if (state == MENU)
 			{
 				Collision = false;
-				HeadPosX.x = (Width / 25) * 5;
-				HeadPosY.y = (Height / 25) * 5;
+				HeadPosition.x = (Width / mapW) * 5;
+				HeadPosition.y = (Height / mapH) * 5;
+				MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 				DirectionSnake = Right;
 				MenuScene(background, titles, subtitles, options_titles, x, y);
 			}
@@ -550,115 +551,30 @@ void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, AL
 
 void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, int Speed)
 {
-	int HeadXNow = 0;
-	int HeadYNow = 0;
-	int HeadPosNowX = 0;
-	int HeadPosNowY = 0;
-	int BodySnakeX = 0;
-	int BodySnakeY = 0;
-	
 	switch (DirectionSnake)
 	{
 		case Right:
 		{
-			HeadPosNowX = HeadPosX.x;
-			HeadPosNowY = HeadPosY.y;
-			HeadXNow = HeadPosNowX + mapW;
-
-			if (HeadPosNowX > 767)
-			{
-				//HeadXNow = 0;
-				Collision = true;
-			}
-			HeadPosX.x = HeadXNow;
-			al_draw_bitmap(right, HeadPosX.x, HeadPosY.y, 0);
-			al_draw_bitmap(bodysnake, HeadPosX.x - mapW, HeadPosY.y, 0);
-			if (Body > 1)
-			{
-				for (int i = 2; i <= Body; i++)
-				{
-					BodySnakeX = HeadPosX.x - (32 * i);
-					BodySnakeY = HeadPosY.y;
-					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-				}
-			}
+			MoveSnake(1, 0);
+			al_draw_bitmap(right, HeadPosition.x, HeadPosition.y, 0);
 		}
 			break;
 		case Left:
 		{
-			HeadPosNowX = HeadPosX.x;
-			HeadPosNowY = HeadPosY.y;
-			HeadXNow = HeadPosNowX - mapW;
-			if (HeadPosNowX < 0)
-			{
-				//HeadXNow = 767;
-				Collision = true;
-			}
-			HeadPosX.x = HeadXNow;
-			BodySnakeX = HeadXNow + mapW;
-			BodySnakeY = HeadPosNowY;
-			al_draw_bitmap(left, HeadPosX.x, HeadPosY.y, 0);
-			al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-			if (Body > 1)
-			{
-				for (int i = 2; i <= Body; i++)
-				{
-					int tempX = 0, tempY = 0;
-					tempX = BodySnakeX;
-					tempY = BodySnakeY;
-					BodySnakeX = tempX + (32 * i - 32);
-					BodySnakeY = tempY - (32 * i - 32);
-					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-				}
-			}
+			MoveSnake(-1, 0);
+			al_draw_bitmap(left, HeadPosition.x, HeadPosition.y, 0);
 		}
 			break;
 		case Up:
 		{
-			HeadPosNowX = HeadPosX.x;
-			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY - mapH;
-			if (HeadPosNowY < 0)
-			{
-				//HeadYNow = 576;
-				Collision = true;
-			}
-			HeadPosY.y = HeadYNow;
-			al_draw_bitmap(up, HeadPosX.x, HeadPosY.y, 0);
-			al_draw_bitmap(bodysnake, HeadPosX.x, HeadPosY.y + mapH, 0);
-			if (Body > 1)
-			{
-				for (int i = 2; i <= Body; i++)
-				{
-					BodySnakeX = HeadPosX.x;
-					BodySnakeY = HeadPosY.y + (32 * i);
-					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-				}
-			}
+			MoveSnake(0, -1);
+			al_draw_bitmap(up, HeadPosition.x, HeadPosition.y, 0);
 		}
 			break;
 		case Down:
 		{
-			HeadPosNowX = HeadPosX.x;
-			HeadPosNowY = HeadPosY.y;
-			HeadYNow = HeadPosNowY + mapH;
-			if (HeadPosNowY > 767)
-			{
-				//HeadYNow = 0;
-				Collision = true;
-			}
-			HeadPosY.y = HeadYNow;
-			al_draw_bitmap(down, HeadPosX.x, HeadPosY.y, 0);
-			al_draw_bitmap(bodysnake, HeadPosX.x, HeadPosY.y - mapH, 0);
-			if (Body > 1)
-			{
-				for (int i = 2; i <= Body; i++)
-				{
-					BodySnakeX = HeadPosX.x;
-					BodySnakeY = HeadPosY.y - (32 * i);
-					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-				}
-			}
+			MoveSnake(0, 1);
+			al_draw_bitmap(down, HeadPosition.x, HeadPosition.y, 0);
 		}			
 			break;
 		default:
@@ -702,102 +618,102 @@ void Walls()
 	int y = 0;
 	do
 	{
-		// Generate random x and y values within the map
+		// Generate random x and y values within the MAP
 		x = rand() % (mapW - 2) + 1;
 		y = rand() % (mapH - 2) + 1;
 
 		// If location is not free try again
-	} while (Map[x + y * mapW] != 0);
+	} while (MAP[x + y * mapW] != 0);
 
 	// Place new food
-	//Map[x + y * mapW] = -2;
-}*/
-
+	//MAP[x + y * mapW] = -2;
+}
+*/
 void CollisionWalls()
 {
 	int Collision1 = (
-		(HeadPosX.x < wall.x * 10) &&
-		(HeadPosX.x + 32 > wall.x * 10) &&
-		(HeadPosY.y < wall.y * 2) &&
-		(HeadPosY.y + 32 > wall.y));
+		(HeadPosition.x < wall.x * 10) &&
+		(HeadPosition.x + 32 > wall.x * 10) &&
+		(HeadPosition.y < wall.y * 2) &&
+		(HeadPosition.y + 32 > wall.y));
 
 	int Collision2 = (
-		(HeadPosX.x < wall.x * 9) &&
-		(HeadPosX.x + 32 > wall.x * 9) &&
-		(HeadPosY.y < wall.y * 9) &&
-		(HeadPosY.y + 32 > wall.y * 8));
+		(HeadPosition.x < wall.x * 9) &&
+		(HeadPosition.x + 32 > wall.x * 9) &&
+		(HeadPosition.y < wall.y * 9) &&
+		(HeadPosition.y + 32 > wall.y * 8));
 
 	int Collision3 = (
-		(HeadPosX.x < wall.x * 9) &&
-		(HeadPosX.x + 32 > wall.x * 9) &&
-		(HeadPosY.y < wall.y * 13) &&
-		(HeadPosY.y + 32 > wall.y * 12));
+		(HeadPosition.x < wall.x * 9) &&
+		(HeadPosition.x + 32 > wall.x * 9) &&
+		(HeadPosition.y < wall.y * 13) &&
+		(HeadPosition.y + 32 > wall.y * 12));
 
 	int Collision4 = (
-		(HeadPosX.x < wall.x * 15) &&
-		(HeadPosX.x + 32 > wall.x * 15) &&
-		(HeadPosY.y < wall.y * 9) &&
-		(HeadPosY.y + 32 > wall.y * 8));
+		(HeadPosition.x < wall.x * 15) &&
+		(HeadPosition.x + 32 > wall.x * 15) &&
+		(HeadPosition.y < wall.y * 9) &&
+		(HeadPosition.y + 32 > wall.y * 8));
 
 	int Collision5 = (
-		(HeadPosX.x < wall.x * 15) &&
-		(HeadPosX.x + 32 > wall.x * 15) &&
-		(HeadPosY.y < wall.y * 13) &&
-		(HeadPosY.y + 32 > wall.y * 12));
+		(HeadPosition.x < wall.x * 15) &&
+		(HeadPosition.x + 32 > wall.x * 15) &&
+		(HeadPosition.y < wall.y * 13) &&
+		(HeadPosition.y + 32 > wall.y * 12));
 
 	int Collision6 = (
-		(HeadPosX.x < wall.x * 5) &&
-		(HeadPosX.x + 32 > wall.x * 5) &&
-		(HeadPosY.y < wall.y * 8) &&
-		(HeadPosY.y + 32 > wall.y * 7));
+		(HeadPosition.x < wall.x * 5) &&
+		(HeadPosition.x + 32 > wall.x * 5) &&
+		(HeadPosition.y < wall.y * 8) &&
+		(HeadPosition.y + 32 > wall.y * 7));
 
 	int Collision7 = (
-		(HeadPosX.x < wall.x * 20) &&
-		(HeadPosX.x + 32 > wall.x * 20) &&
-		(HeadPosY.y < wall.y * 21) &&
-		(HeadPosY.y + 32 > wall.y * 20));
+		(HeadPosition.x < wall.x * 20) &&
+		(HeadPosition.x + 32 > wall.x * 20) &&
+		(HeadPosition.y < wall.y * 21) &&
+		(HeadPosition.y + 32 > wall.y * 20));
 
 	int Collision8 = (
-		(HeadPosX.x < wall.x * 20) &&
-		(HeadPosX.x + 32 > wall.x * 20) &&
-		(HeadPosY.y < wall.y * 6) &&
-		(HeadPosY.y + 32 > wall.y * 5));
+		(HeadPosition.x < wall.x * 20) &&
+		(HeadPosition.x + 32 > wall.x * 20) &&
+		(HeadPosition.y < wall.y * 6) &&
+		(HeadPosition.y + 32 > wall.y * 5));
 
 	int Collision9 = (
-		(HeadPosX.x < wall.x * 5) &&
-		(HeadPosX.x + 32 > wall.x * 5) &&
-		(HeadPosY.y < wall.y * 21) &&
-		(HeadPosY.y + 32 > wall.y * 20));
+		(HeadPosition.x < wall.x * 5) &&
+		(HeadPosition.x + 32 > wall.x * 5) &&
+		(HeadPosition.y < wall.y * 21) &&
+		(HeadPosition.y + 32 > wall.y * 20));
 
 	int Collision10 = (
-		(HeadPosX.x < wall.x * 18) &&
-		(HeadPosX.x + 32 > wall.x * 18) &&
-		(HeadPosY.y < wall.y * 6) &&
-		(HeadPosY.y + 32 > wall.y * 5));
+		(HeadPosition.x < wall.x * 18) &&
+		(HeadPosition.x + 32 > wall.x * 18) &&
+		(HeadPosition.y < wall.y * 6) &&
+		(HeadPosition.y + 32 > wall.y * 5));
 
 	int Collision11 = (
-		(HeadPosX.x < wall.x * 2) &&
-		(HeadPosX.x + 32 > wall.x * 2) &&
-		(HeadPosY.y < wall.y * 3) &&
-		(HeadPosY.y + 32 > wall.y * 2));
+		(HeadPosition.x < wall.x * 2) &&
+		(HeadPosition.x + 32 > wall.x * 2) &&
+		(HeadPosition.y < wall.y * 3) &&
+		(HeadPosition.y + 32 > wall.y * 2));
 
 	int Collision12 = (
-		(HeadPosX.x < wall.x * 3) &&
-		(HeadPosX.x + 32 > wall.x * 3) &&
-		(HeadPosY.y < wall.y * 18) &&
-		(HeadPosY.y + 32 > wall.y * 17));
+		(HeadPosition.x < wall.x * 3) &&
+		(HeadPosition.x + 32 > wall.x * 3) &&
+		(HeadPosition.y < wall.y * 18) &&
+		(HeadPosition.y + 32 > wall.y * 17));
 
 	int Collision13 = (
-		(HeadPosX.x < wall.x * 16) &&
-		(HeadPosX.x + 32 > wall.x * 16) &&
-		(HeadPosY.y < wall.y * 17) &&
-		(HeadPosY.y + 32 > wall.y * 16));
+		(HeadPosition.x < wall.x * 16) &&
+		(HeadPosition.x + 32 > wall.x * 16) &&
+		(HeadPosition.y < wall.y * 17) &&
+		(HeadPosition.y + 32 > wall.y * 16));
 
 	int Collision14 = (
-		(HeadPosX.x < wall.x * 7) &&
-		(HeadPosX.x + 32 > wall.x * 7) &&
-		(HeadPosY.y < wall.y * 18) &&
-		(HeadPosY.y + 32 > wall.y * 17));
+		(HeadPosition.x < wall.x * 7) &&
+		(HeadPosition.x + 32 > wall.x * 7) &&
+		(HeadPosition.y < wall.y * 18) &&
+		(HeadPosition.y + 32 > wall.y * 17));
 
 	if (Collision1 || Collision2 || Collision3 ||
 		Collision4 || Collision5 || Collision6 ||
@@ -820,14 +736,73 @@ void test()
 	{
 		for (int j = 32; j < 800; j += 32)
 		{
-			HeadPosX.dx = Map[i][mapH];
-			HeadPosY.dy = Map[mapW][j];
+			HeadPosition.dx = MAP[i][mapH];
+			HeadPosition.dy = MAP[mapW][j];
 		}
 	}
 }
 */
-void MoveSnake()
+
+void MoveSnake(int x, int y)
 {
-//	int HeadXNow = Map[][];
-//	int HeadYNow = 0;
+	int HeadXNow = 0;
+	int HeadYNow = 0;
+	BodySnake.x = 0;
+	BodySnake.y = 0;
+
+	HeadXNow = HeadPosition.x + (x * Pixels);
+	HeadYNow = HeadPosition.y + (y * Pixels);
+	//FOOD
+	/*if (MAP[HeadXNow + (HeadYNow * mapH)] == 1)
+	{
+
+	}
+	
+	//FREE LOCATION
+	else if (MAP[HeadXNow + HeadYNow * mapW] != 0)
+	{
+
+	}
+	*/
+	if (HeadXNow > 767)
+	{
+		//HeadXNow = 0;
+		Collision = true;
+	}
+
+	HeadPosition.x = HeadXNow;
+	HeadPosition.y = HeadYNow;
+	BodySnake.x = 231;
+	BodySnake.y = 231;
+	MAP[HeadPosition.x + HeadPosition.y * mapW] = Body + 1;
+	//al_draw_bitmap(right, HeadPosNowX, HeadPosNowY, 0);
+	//al_draw_bitmap(bodysnake, HeadPosition.x, HeadPosition.y, 0);
+
+	/*
+	if (Body > 1)
+	{
+		for (int i = 2; i <= Body; i++)
+		{
+			BodySnakeX = HeadPosition.x - (Pixels * i);
+			BodySnakeY = HeadPosition.y;
+			//al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+		}
+	}
+	*/
+}
+
+void AddItems(int maps, ALLEGRO_BITMAP *bodysnake)
+{
+	if (maps > 0)
+	{
+		return al_draw_bitmap(bodysnake, HeadPosition.x, HeadPosition.y, 0);
+	}
+
+	/*switch (maps)
+	{
+	case Apple:
+		return 
+	default:
+		break;
+	}*/
 }
