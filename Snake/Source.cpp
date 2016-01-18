@@ -556,8 +556,6 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 	int HeadPosNowY = 0;
 	int BodySnakeX = 0;
 	int BodySnakeY = 0;
-
-	
 	
 	switch (DirectionSnake)
 	{
@@ -574,11 +572,15 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosX.x = HeadXNow;
 			al_draw_bitmap(right, HeadPosX.x, HeadPosY.y, 0);
-			for (int i = 1; i < 4; i++)
+			al_draw_bitmap(bodysnake, HeadPosX.x - mapW, HeadPosY.y, 0);
+			if (Body > 1)
 			{
-				BodySnakeX = HeadPosX.x - (32 * i);
-				BodySnakeY = HeadPosY.y;
-				al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				for (int i = 2; i <= Body; i++)
+				{
+					BodySnakeX = HeadPosX.x - (32 * i);
+					BodySnakeY = HeadPosY.y;
+					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				}
 			}
 		}
 			break;
@@ -593,14 +595,22 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 				Collision = true;
 			}
 			HeadPosX.x = HeadXNow;
+			BodySnakeX = HeadXNow + mapW;
+			BodySnakeY = HeadPosNowY;
 			al_draw_bitmap(left, HeadPosX.x, HeadPosY.y, 0);
-			for (int i = 1; i < 4; i++)
+			al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+			if (Body > 1)
 			{
-				BodySnakeX = HeadPosX.x + (32 * i);
-				BodySnakeY = HeadPosY.y;
-				al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				for (int i = 2; i <= Body; i++)
+				{
+					int tempX = 0, tempY = 0;
+					tempX = BodySnakeX;
+					tempY = BodySnakeY;
+					BodySnakeX = tempX + (32 * i - 32);
+					BodySnakeY = tempY - (32 * i - 32);
+					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				}
 			}
-
 		}
 			break;
 		case Up:
@@ -615,13 +625,16 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(up, HeadPosX.x, HeadPosY.y, 0);
-			for (int i = 1; i < 4; i++)
+			al_draw_bitmap(bodysnake, HeadPosX.x, HeadPosY.y + mapH, 0);
+			if (Body > 1)
 			{
-				BodySnakeX = HeadPosX.x;
-				BodySnakeY = HeadPosY.y + (32 * i);
-				al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				for (int i = 2; i <= Body; i++)
+				{
+					BodySnakeX = HeadPosX.x;
+					BodySnakeY = HeadPosY.y + (32 * i);
+					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				}
 			}
-
 		}
 			break;
 		case Down:
@@ -636,11 +649,15 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			}
 			HeadPosY.y = HeadYNow;
 			al_draw_bitmap(down, HeadPosX.x, HeadPosY.y, 0);
-			for (int i = 1; i < 4; i++)
+			al_draw_bitmap(bodysnake, HeadPosX.x, HeadPosY.y - mapH, 0);
+			if (Body > 1)
 			{
-				BodySnakeX = HeadPosX.x;
-				BodySnakeY = HeadPosY.y - (32 * i);
-				al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				for (int i = 2; i <= Body; i++)
+				{
+					BodySnakeX = HeadPosX.x;
+					BodySnakeY = HeadPosY.y - (32 * i);
+					al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
+				}
 			}
 		}			
 			break;
