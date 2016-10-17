@@ -72,6 +72,15 @@
     <ClInclude Include="MessageError.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MenuScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Walls.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ingame1.ogg">
@@ -86,5 +95,6 @@
     <None Include="crash.ogg">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
