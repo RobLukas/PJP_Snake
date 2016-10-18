@@ -13,18 +13,19 @@
 #include "MessageError.h"
 #include "MenuScene.h"
 #include "PlayScene.h"
-#include "Walls.h"
+#include "GameOverScene.h"
+#include "SettingScene.h"
+#include "RandomParameters.h"
+
 #define MAX 768
 
-void playScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed);
-void GameoverScene(ALLEGRO_FONT *titles, ALLEGRO_FONT *subtitlesover);
-void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y);
 void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, int Speed);
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed);
 void CollisionWalls();
 void Developer();
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake);
 void Walls();
+void WallsText();
 
 //=========== GLOBAL VARIABLES ===========//
 const int Width = 800;
@@ -89,6 +90,7 @@ ALLEGRO_SAMPLE *ChangeOnRedSound = NULL;
 
 int main()
 {
+
 	//=========== VARIABLES ===========//
 	float FPS = 10.0;
 	bool done = false;
@@ -184,7 +186,7 @@ int main()
 	HeadPosition.dy = HeadPosition.height;
 
 	//=========== MESSAGE ERRORS ===========//
-	MessageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
+	messageErrors(display, subtitles, titles, setting_titles, options_titles, fps, background, background_game, head_right.image, InGameSoundInst);
 
 	//=========== TIMER ===========//
 	event_queue = al_create_event_queue();
@@ -438,7 +440,9 @@ int main()
 			}
 			else if (state == PLAY)
 			{
-				playScene(background_game, x, y, head_right.image, head_left.image, head_up.image, head_down.image, BodySnakeImage.image, fps, GameFPS, Speed);
+				playScene(background_game, x, y);
+				WallsText();
+				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, BodySnakeImage.image, fps, GameFPS, Speed);
 				if (Collision)
 				{
 					state = GAMEOVER;
@@ -449,11 +453,11 @@ int main()
 				Collision = false;
 				DirectionSnake = Right;
 				al_stop_sample_instance(InGameSoundInst);
-				GameoverScene(titlesover, subtitlesover);
+				gameOverScene(titlesover, subtitlesover, Height, Width);
 			}
 			else if (state = SETTING)
 			{
-				SettingScene(background, setting_titles, options_titles, subtitles, x, y);
+				settingScene(background, setting_titles, options_titles, subtitles, x, y, Height, Width);
 			}
 			al_flip_display();
 			al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -483,30 +487,8 @@ int main()
 
 
 
-void GameoverScene(ALLEGRO_FONT *titlesover, ALLEGRO_FONT *subtitlesover)
-{
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_textf(titlesover, al_map_rgb(255, 0, 255), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "GAMEOVER");
-	al_draw_textf(subtitlesover, al_map_rgb(255, 0, 255), Width /2, Height - 150, ALLEGRO_ALIGN_CENTRE, "Wcisnij [ESC] aby wejsc do Menu lub Spacje aby zagrac ponownie.");
-	al_flip_display();
-}
 
-void SettingScene(ALLEGRO_BITMAP *background, ALLEGRO_FONT *setting_titles, ALLEGRO_FONT *options_titles, ALLEGRO_FONT *subtitles, int x, int y)
-{
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_bitmap(background, x, y, 0);
-	al_draw_textf(setting_titles, al_map_rgb(0, 0, 0), Width / 2, Height / 4.5, ALLEGRO_ALIGN_CENTRE, "Ustawienia");
-	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 250, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "Dzwiek: ");
-	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 400, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "ON");
-	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 500, Height / 2 + 50, ALLEGRO_ALIGN_CENTRE, "OFF");
-	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 435, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[Q]");
-	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 543, Height / 2 + 65, ALLEGRO_ALIGN_CENTRE, "[W]");
-	al_draw_textf(subtitles, al_map_rgb(0, 0, 0), 330, Height / 2 + 150, ALLEGRO_ALIGN_CENTRE, "Predkosc:        <       >");
-	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 400, Height / 2 + 190, ALLEGRO_ALIGN_CENTER, "mniejsza");
-	al_draw_textf(options_titles, al_map_rgb(0, 0, 0), 480, Height / 2 + 190, ALLEGRO_ALIGN_CENTER, "wieksza");
-	//al_draw_textf()
-	al_flip_display();
-}
+
 
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed)
 {
@@ -577,23 +559,7 @@ void Developer()
 	}
 }
 
-void playScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed)
-{
-	al_clear_to_color(al_map_rgb(0, 0, 0));
-	//al_draw_bitmap(background_game, x, y, 0);
-	/*
-	int lineSpace = 32;
-	for (size_t i = 1; i < 25; i++)
-	{
-	al_draw_line(i*lineSpace, 0, i*lineSpace, 800, al_map_rgb(0, 255, 255), NULL);
-	al_flip_display();
-	al_draw_line(0, i*lineSpace, 800, i*lineSpace, al_map_rgb(0, 255, 255), NULL);
-	al_flip_display();
-	}
-	*/
-	Walls();
-	GameRun(right, left, up, down, bodysnake, fps, GameFPS, Speed);
-}
+
 
 void Walls()
 {
@@ -612,6 +578,22 @@ void Walls()
 	al_draw_bitmap(wall.image, wall.width * 16, wall.height * 16, NULL);
 	al_draw_bitmap(wall.image, wall.width * 7, wall.height * 17, NULL);
 }
+
+void WallsText()
+{
+	randomParametrs();
+	al_draw_bitmap(wall.image, wall.width * posX[0], wall.height * posY[0], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[1], wall.height * posY[1], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[2], wall.height * posY[2], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[3], wall.height * posY[3], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[4], wall.height * posY[4], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[5], wall.height * posY[5], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[6], wall.height * posY[6], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[7], wall.height * posY[7], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[8], wall.height * posY[8], NULL);
+	al_draw_bitmap(wall.image, wall.width * posX[9], wall.height * posY[9], NULL);
+}
+
 
 /*void Food()
 {
@@ -827,3 +809,8 @@ void AddItems(int maps, ALLEGRO_BITMAP *bodysnake)
 			TILE_SIZE, TILE_SIZE);
 	}
 }*/
+
+
+
+///// DO POPRAWY /////
+// funkcja void playScene(ALLEGRO_BITMAP *background_game, int x, int y, ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed)

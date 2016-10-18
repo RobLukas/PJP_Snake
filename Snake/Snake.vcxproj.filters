@@ -81,6 +81,15 @@
     <ClInclude Include="Walls.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameOverScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SettingScene.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomParameters.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ingame1.ogg">

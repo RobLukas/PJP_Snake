@@ -2,7 +2,7 @@
 #ifndef MESSAGE_ERROR_H
 #define MESSAGE_ERROR_H
 
-int MessageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *titles, ALLEGRO_FONT *setting_titles, 
+int messageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *titles, ALLEGRO_FONT *setting_titles, 
 	ALLEGRO_FONT *options_titles, ALLEGRO_FONT *fps, ALLEGRO_BITMAP *background, ALLEGRO_BITMAP *background_game, 
 	ALLEGRO_BITMAP *head_right, ALLEGRO_SAMPLE_INSTANCE *InGameSound)
 {
