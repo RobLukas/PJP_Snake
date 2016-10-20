@@ -78,6 +78,7 @@ Sprite BodySnake;
 Sprite wall;
 Sprite wallHorizontally;
 Sprite wallPerpendicularly;
+Sprite apple;
 
 //=========== GLOBAL VARIABLES ===========//
 
@@ -119,11 +120,12 @@ int main()
 	//=========== WALLS ===========//
 	wall.x = 32;
 	wall.y = 32;
-	wallHorizontally.x;
 	wallHorizontally.width = 800;
 	wallHorizontally.height = 32;
 	wallPerpendicularly.width = 32;
 	wallPerpendicularly.height = 800;
+	apple.width = 32;
+	apple.height = 32;
 
 	wall.dx = wall.width;
 	wall.dy = wall.height;
@@ -652,11 +654,8 @@ void CollisionWalls()
 		(HeadPosition.x + Pixels > wall.width * posX[9]) &&
 		(HeadPosition.y < wall.height * (posY[9] + 1)) &&
 		(HeadPosition.y + Pixels > wall.height * posY[9]));
+
 	// PION POZIOM
-	//al_draw_bitmap(wallHorizontally.image, wallHorizontally.width - Width, wallHorizontally.height - Pixels, NULL);
-	//al_draw_bitmap(wallHorizontally.image, 0, 768, NULL);
-	//al_draw_bitmap(wallPerpendicularly.image, 0, 0, NULL);
-	//al_draw_bitmap(wallPerpendicularly.image, 768, 0, NULL);
 	int CollisionWall1 = (
 		(HeadPosition.x < 0 + wallHorizontally.width) &&
 		(HeadPosition.x + Pixels > 0) &&
@@ -698,19 +697,23 @@ void CollisionWalls()
 
 void Food()
 {
-	int x = 0;
-	int y = 0;
-	do
+	int x, y, finish = 0;
+
+	while (!finish)
 	{
-		// Generate random x and y values within the MAP
-		x = rand() % (mapW - 2) + 1;
-		y = rand() % (mapH - 2) + 1;
+		apple.x = random();
+		apple.y = random();
+		for (int i = 0; i < 10; i++)
+		{
+			if (apple.x == posX[i] && apple.y == posY[i])
+			{
+				apple.x = random();
+				apple.y = random();
+			}
+		}
 
-		// If location is not free try again
-	} while (MAP[x + y * mapW] != 0);
-
-	// Place new food
-	//MAP[x + y * mapW] = -2;
+		finish++;
+	}
 }
 
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake)
