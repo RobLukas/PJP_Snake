@@ -119,6 +119,11 @@ int main()
 	//=========== WALLS ===========//
 	wall.x = 32;
 	wall.y = 32;
+	wallHorizontally.x;
+	wallHorizontally.width = 800;
+	wallHorizontally.height = 32;
+	wallPerpendicularly.width = 32;
+	wallPerpendicularly.height = 800;
 
 	wall.dx = wall.width;
 	wall.dy = wall.height;
@@ -653,36 +658,28 @@ void CollisionWalls()
 	//al_draw_bitmap(wallPerpendicularly.image, 0, 0, NULL);
 	//al_draw_bitmap(wallPerpendicularly.image, 768, 0, NULL);
 	int CollisionWall1 = (
-		(HeadPosition.x < wallHorizontally.width) &&
-		(HeadPosition.x > wallHorizontally.width + 736) &&
-		(HeadPosition.y < wallHorizontally.height) &&
-		(HeadPosition.y > wallHorizontally.height + 736));
+		(HeadPosition.x < 0 + wallHorizontally.width) &&
+		(HeadPosition.x + Pixels > 0) &&
+		(HeadPosition.y < 0 + wallHorizontally.height) &&
+		(HeadPosition.y + Pixels > 0));
 
 	int CollisionWall2 = (
-		(HeadPosition.x < wallHorizontally.width - Pixels + Width) &&
-		(HeadPosition.x + Pixels > wallHorizontally.width - Width) &&
-		(HeadPosition.y <  wallHorizontally.height + 736 + 1) &&
-		(HeadPosition.y + Pixels > wallHorizontally.height + 736));
+		(HeadPosition.x < 0 + wallHorizontally.width) &&
+		(HeadPosition.x + Pixels > 0) &&
+		(HeadPosition.y <  768 + wallHorizontally.height) &&
+		(HeadPosition.y + Pixels > 768));
 
 	int CollisionWall3 = (
-		(HeadPosition.x < wallHorizontally.width - Width + 1) &&
-		(HeadPosition.x + Pixels > wallHorizontally.width - Width) &&
-		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
-		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
+		(HeadPosition.x < 0 + wallPerpendicularly.width) &&
+		(HeadPosition.x + Pixels > 0) &&
+		(HeadPosition.y < Pixels + wallPerpendicularly.height) &&
+		(HeadPosition.y + Pixels > Pixels));
 
 	int CollisionWall4 = (
-		(HeadPosition.x < wallHorizontally.width - Pixels + 1) &&
-		(HeadPosition.x + Pixels > wallHorizontally.width - Pixels) &&
-		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
-		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
-
-
-	int CollisionTest1 = (
-		(HeadPosition.x < wallHorizontally.width) &&
-		(HeadPosition.x + Pixels > 0) &&
-		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
-		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
-
+		(HeadPosition.x < 768 + wallPerpendicularly.width) &&
+		(HeadPosition.x + Pixels > 768) &&
+		(HeadPosition.y < Pixels + wallPerpendicularly.height) &&
+		(HeadPosition.y + Pixels > Pixels));
 
 	if (Collision1 || Collision2 || Collision3 ||
 		Collision4 || Collision5 || Collision6 ||
