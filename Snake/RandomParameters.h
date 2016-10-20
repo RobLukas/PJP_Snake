@@ -12,19 +12,26 @@ int random() {
 	return 1 + (int)(rand() / (RAND_MAX + 1.0) * 24);
 }
 
-int randomParametrs() {
+void randomParametersXY(int *pos) {
+	for (int i = 0; i < 10; i++)
+	{
+		pos[i] = random();
+	}
+}
+
+int randomParameters() {
 	int positionX[10];
 	int positionY[10];
 	srand(time(NULL));
 	auto arrayLength = end(positionX) - begin(positionX);
 	for (int i = 0; i < arrayLength; i++)
 	{
-		positionY[i] = random();
 		positionX[i] = random();
+		positionY[i] = random();
 	}
 	for (int i = 0; i < arrayLength; i++)
 	{
-		printf("%d\n", positionX[i]);
+		printf("%d\t", positionX[i]);
 		printf("%d\n", positionY[i]);
 	}
 	return *positionX, *positionY;

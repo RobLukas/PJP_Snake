@@ -56,6 +56,12 @@
     <Image Include="head_snake_left1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="wallPion.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wallPoziom.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="TEMPSITC.TTF">

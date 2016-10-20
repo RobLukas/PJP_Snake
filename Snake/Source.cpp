@@ -25,7 +25,6 @@ void CollisionWalls();
 void Developer();
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake);
 void Walls();
-void WallsText();
 
 //=========== GLOBAL VARIABLES ===========//
 const int Width = 800;
@@ -38,6 +37,8 @@ const int mapW = (Width / Pixels);
 const int mapH = (Height / Pixels);
 
 int MAP[mapW*mapH];
+
+int posX[10], posY[10];
 
 int Body = 1;
 int XbodyNext = 0;
@@ -75,6 +76,8 @@ Sprite FoodX;
 Sprite FoodY;
 Sprite BodySnake;
 Sprite wall;
+Sprite wallHorizontally;
+Sprite wallPerpendicularly;
 
 //=========== GLOBAL VARIABLES ===========//
 
@@ -177,10 +180,16 @@ int main()
 	head_down.image = al_load_bitmap("head_snake_down1.bmp");
 	BodySnakeImage.image = al_load_bitmap("body_snake_red.bmp");
 	wall.image = al_load_bitmap("wall.bmp");
+	wallHorizontally.image = al_load_bitmap("wallPoziom.bmp");
+	wallPerpendicularly.image = al_load_bitmap("wallPion.bmp");
 
-	//al_convert_mask_to_alpha(head_right, )
+	al_convert_mask_to_alpha(head_right.image, al_map_rgb(255, 255, 255));
 	wall.width = al_get_bitmap_width(wall.image);
 	wall.height = al_get_bitmap_height(wall.image);
+	wallHorizontally.width = al_get_bitmap_width(wallHorizontally.image);
+	wallHorizontally.height = al_get_bitmap_height(wallHorizontally.image);
+	wallPerpendicularly.width = al_get_bitmap_width(wallPerpendicularly.image);
+	wallPerpendicularly.height = al_get_bitmap_height(wallPerpendicularly.image);
 
 	HeadPosition.dx = HeadPosition.width;
 	HeadPosition.dy = HeadPosition.height;
@@ -364,7 +373,6 @@ int main()
 					//MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 					DirectionSnake = Right;
 				}
-				CollisionWalls();
 				if (keys[z])
 				{
 					bound = true;
@@ -431,6 +439,8 @@ int main()
 
 			if (state == MENU)
 			{
+				randomParametersXY(posX);
+				randomParametersXY(posY);
 				Collision = false;
 				HeadPosition.x = (Width / mapW) * 5;
 				HeadPosition.y = (Height / mapH) * 5;
@@ -441,8 +451,9 @@ int main()
 			else if (state == PLAY)
 			{
 				playScene(background_game, x, y);
-				WallsText();
 				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, BodySnakeImage.image, fps, GameFPS, Speed);
+				Walls();
+				CollisionWalls();
 				if (Collision)
 				{
 					state = GAMEOVER;
@@ -450,6 +461,8 @@ int main()
 			}
 			else if (state == GAMEOVER)
 			{
+				randomParametersXY(posX);
+				randomParametersXY(posY);
 				Collision = false;
 				DirectionSnake = Right;
 				al_stop_sample_instance(InGameSoundInst);
@@ -484,11 +497,6 @@ int main()
 
 	return 0;
 }
-
-
-
-
-
 
 void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, ALLEGRO_FONT *fps, int GameFPS, int Speed)
 {
@@ -559,29 +567,8 @@ void Developer()
 	}
 }
 
-
-
 void Walls()
 {
-	al_draw_bitmap(wall.image, wall.width * 10, wall.height * 1, NULL);
-	al_draw_bitmap(wall.image, wall.width * 9, wall.height * 8, NULL);
-	al_draw_bitmap(wall.image, wall.width * 9, wall.height * 12, NULL);
-	al_draw_bitmap(wall.image, wall.width * 15, wall.height * 8, NULL);
-	al_draw_bitmap(wall.image, wall.width * 15, wall.height * 12, NULL);
-	al_draw_bitmap(wall.image, wall.width * 5, wall.height * 7, NULL);
-	al_draw_bitmap(wall.image, wall.width * 20, wall.height * 20, NULL);
-	al_draw_bitmap(wall.image, wall.width * 20, wall.height * 5, NULL);
-	al_draw_bitmap(wall.image, wall.width * 5, wall.height * 20, NULL);
-	al_draw_bitmap(wall.image, wall.width * 18, wall.height * 5, NULL);
-	al_draw_bitmap(wall.image, wall.width * 2, wall.height * 2, NULL);
-	al_draw_bitmap(wall.image, wall.width * 3, wall.height * 17, NULL);
-	al_draw_bitmap(wall.image, wall.width * 16, wall.height * 16, NULL);
-	al_draw_bitmap(wall.image, wall.width * 7, wall.height * 17, NULL);
-}
-
-void WallsText()
-{
-	randomParametrs();
 	al_draw_bitmap(wall.image, wall.width * posX[0], wall.height * posY[0], NULL);
 	al_draw_bitmap(wall.image, wall.width * posX[1], wall.height * posY[1], NULL);
 	al_draw_bitmap(wall.image, wall.width * posX[2], wall.height * posY[2], NULL);
@@ -592,10 +579,127 @@ void WallsText()
 	al_draw_bitmap(wall.image, wall.width * posX[7], wall.height * posY[7], NULL);
 	al_draw_bitmap(wall.image, wall.width * posX[8], wall.height * posY[8], NULL);
 	al_draw_bitmap(wall.image, wall.width * posX[9], wall.height * posY[9], NULL);
+	al_draw_bitmap(wallHorizontally.image, wallHorizontally.width - Width, wallHorizontally.height - Pixels, NULL);
+	al_draw_bitmap(wallHorizontally.image, 0, 768, NULL);
+	al_draw_bitmap(wallPerpendicularly.image, 0, 0, NULL);
+	al_draw_bitmap(wallPerpendicularly.image, 768, 0, NULL);
 }
 
+void CollisionWalls()
+{
+	
+	int Collision1 = (
+		(HeadPosition.x < wall.width * (posX[0]+1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[0]) &&
+		(HeadPosition.y < wall.height * (posY[0]+1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[0]));
 
-/*void Food()
+	int Collision2 = (
+		(HeadPosition.x < wall.width * (posX[1] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[1]) &&
+		(HeadPosition.y < wall.height * (posY[1] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[1]));
+
+	int Collision3 = (
+		(HeadPosition.x < wall.width * (posX[2] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[2]) &&
+		(HeadPosition.y < wall.height * (posY[2] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[2]));
+
+	int Collision4 = (
+		(HeadPosition.x < wall.width * (posX[3] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[3]) &&
+		(HeadPosition.y < wall.height * (posY[3] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[3]));
+
+	int Collision5 = (
+		(HeadPosition.x < wall.width * (posX[4] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[4]) &&
+		(HeadPosition.y < wall.height * (posY[4] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[4]));
+
+	int Collision6 = (
+		(HeadPosition.x < wall.width * (posX[5] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[5]) &&
+		(HeadPosition.y < wall.height * (posY[5] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[5]));
+
+	int Collision7 = (
+		(HeadPosition.x < wall.width * (posX[6] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[6]) &&
+		(HeadPosition.y < wall.height * (posY[6] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[6]));
+
+	int Collision8 = (
+		(HeadPosition.x < wall.width * (posX[7] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[7]) &&
+		(HeadPosition.y < wall.height * (posY[7] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[7]));
+
+	int Collision9 = (
+		(HeadPosition.x < wall.width * (posX[8] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[8]) &&
+		(HeadPosition.y < wall.height * (posY[8] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[8]));
+
+	int Collision10 = (
+		(HeadPosition.x < wall.width * (posX[9] + 1)) &&
+		(HeadPosition.x + Pixels > wall.width * posX[9]) &&
+		(HeadPosition.y < wall.height * (posY[9] + 1)) &&
+		(HeadPosition.y + Pixels > wall.height * posY[9]));
+	// PION POZIOM
+	//al_draw_bitmap(wallHorizontally.image, wallHorizontally.width - Width, wallHorizontally.height - Pixels, NULL);
+	//al_draw_bitmap(wallHorizontally.image, 0, 768, NULL);
+	//al_draw_bitmap(wallPerpendicularly.image, 0, 0, NULL);
+	//al_draw_bitmap(wallPerpendicularly.image, 768, 0, NULL);
+	int CollisionWall1 = (
+		(HeadPosition.x < wallHorizontally.width) &&
+		(HeadPosition.x > wallHorizontally.width + 736) &&
+		(HeadPosition.y < wallHorizontally.height) &&
+		(HeadPosition.y > wallHorizontally.height + 736));
+
+	int CollisionWall2 = (
+		(HeadPosition.x < wallHorizontally.width - Pixels + Width) &&
+		(HeadPosition.x + Pixels > wallHorizontally.width - Width) &&
+		(HeadPosition.y <  wallHorizontally.height + 736 + 1) &&
+		(HeadPosition.y + Pixels > wallHorizontally.height + 736));
+
+	int CollisionWall3 = (
+		(HeadPosition.x < wallHorizontally.width - Width + 1) &&
+		(HeadPosition.x + Pixels > wallHorizontally.width - Width) &&
+		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
+		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
+
+	int CollisionWall4 = (
+		(HeadPosition.x < wallHorizontally.width - Pixels + 1) &&
+		(HeadPosition.x + Pixels > wallHorizontally.width - Pixels) &&
+		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
+		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
+
+
+	int CollisionTest1 = (
+		(HeadPosition.x < wallHorizontally.width) &&
+		(HeadPosition.x + Pixels > 0) &&
+		(HeadPosition.y < wallHorizontally.height - Pixels + 1) &&
+		(HeadPosition.y + Pixels > wallHorizontally.height - Pixels));
+
+
+	if (Collision1 || Collision2 || Collision3 ||
+		Collision4 || Collision5 || Collision6 ||
+		Collision7 || Collision8 || Collision9 ||
+		Collision10 || CollisionWall1 || CollisionWall2 
+		|| CollisionWall3 || CollisionWall4)
+	{
+		Collision = true;
+		state = GAMEOVER;
+	}
+	else
+	{
+		Collision = false;
+	}
+}
+
+void Food()
 {
 	int x = 0;
 	int y = 0;
@@ -610,107 +714,6 @@ void WallsText()
 
 	// Place new food
 	//MAP[x + y * mapW] = -2;
-}
-*/
-void CollisionWalls()
-{
-	int Collision1 = (
-		(HeadPosition.x < wall.width * 11) &&
-		(HeadPosition.x + 32 > wall.width * 10) &&
-		(HeadPosition.y < wall.height * 2) &&
-		(HeadPosition.y + 32 > wall.height));
-
-	int Collision2 = (
-		(HeadPosition.x < wall.width * 10) &&
-		(HeadPosition.x + 32 > wall.width * 9) &&
-		(HeadPosition.y < wall.height * 9) &&
-		(HeadPosition.y + 32 > wall.height * 8));
-
-	int Collision3 = (
-		(HeadPosition.x < wall.width * 10) &&
-		(HeadPosition.x + 32 > wall.width * 9) &&
-		(HeadPosition.y < wall.height * 13) &&
-		(HeadPosition.y + 32 > wall.height * 12));
-
-	int Collision4 = (
-		(HeadPosition.x < wall.width * 16) &&
-		(HeadPosition.x + 32 > wall.width * 15) &&
-		(HeadPosition.y < wall.height * 9) &&
-		(HeadPosition.y + 32 > wall.height * 8));
-
-	int Collision5 = (
-		(HeadPosition.x < wall.width * 16) &&
-		(HeadPosition.x + 32 > wall.width * 15) &&
-		(HeadPosition.y < wall.height * 13) &&
-		(HeadPosition.y + 32 > wall.height * 12));
-
-	int Collision6 = (
-		(HeadPosition.x < wall.width * 6) &&
-		(HeadPosition.x + 32 > wall.width * 5) &&
-		(HeadPosition.y < wall.height * 8) &&
-		(HeadPosition.y + 32 > wall.height * 7));
-
-	int Collision7 = (
-		(HeadPosition.x < wall.width * 21) &&
-		(HeadPosition.x + 32 > wall.width * 20) &&
-		(HeadPosition.y < wall.height * 21) &&
-		(HeadPosition.y + 32 > wall.height * 20));
-
-	int Collision8 = (
-		(HeadPosition.x < wall.width * 21) &&
-		(HeadPosition.x + 32 > wall.width * 20) &&
-		(HeadPosition.y < wall.height * 6) &&
-		(HeadPosition.y + 32 > wall.height * 5));
-
-	int Collision9 = (
-		(HeadPosition.x < wall.width * 6) &&
-		(HeadPosition.x + 32 > wall.width * 5) &&
-		(HeadPosition.y < wall.height * 21) &&
-		(HeadPosition.y + 32 > wall.height * 20));
-
-	int Collision10 = (
-		(HeadPosition.x < wall.width * 19) &&
-		(HeadPosition.x + 32 > wall.width * 18) &&
-		(HeadPosition.y < wall.height * 6) &&
-		(HeadPosition.y + 32 > wall.height * 5));
-
-	int Collision11 = (
-		(HeadPosition.x < wall.width * 3) &&
-		(HeadPosition.x + 32 > wall.width * 2) &&
-		(HeadPosition.y < wall.height * 3) &&
-		(HeadPosition.y + 32 > wall.height * 2));
-
-	int Collision12 = (
-		(HeadPosition.x < wall.width * 4) &&
-		(HeadPosition.x + 32 > wall.width * 3) &&
-		(HeadPosition.y < wall.height * 18) &&
-		(HeadPosition.y + 32 > wall.height * 17));
-
-	int Collision13 = (
-		(HeadPosition.x < wall.width * 17) &&
-		(HeadPosition.x + 32 > wall.width * 16) &&
-		(HeadPosition.y < wall.height * 17) &&
-		(HeadPosition.y + 32 > wall.height * 16));
-
-	int Collision14 = (
-		(HeadPosition.x < wall.width * 8) &&
-		(HeadPosition.x + 32 > wall.width * 7) &&
-		(HeadPosition.y < wall.height * 18) &&
-		(HeadPosition.y + 32 > wall.height * 17));
-
-	if (Collision1 || Collision2 || Collision3 ||
-		Collision4 || Collision5 || Collision6 ||
-		Collision7 || Collision8 || Collision9 || 
-		Collision10 || Collision11 || Collision12 || 
-		Collision13 || Collision14)
-	{
-		Collision = true;
-		state = GAMEOVER;
-	}
-	else
-	{
-		Collision = false;
-	}
 }
 
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake)
