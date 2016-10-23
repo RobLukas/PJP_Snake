@@ -42,7 +42,7 @@ int MAP[mapW*mapH];
 
 int posX[10], posY[10];
 
-int Body = 1;
+int Body = 2;
 int XbodyNext = 0;
 int YbodyNext = 0;
 
@@ -80,7 +80,8 @@ struct Sprite
 Sprite HeadPosition;
 Sprite FoodX;
 Sprite FoodY;
-Sprite bodySnake;
+Sprite bodySnake[518];
+Sprite body;
 Sprite wall;
 Sprite wallHorizontally;
 Sprite wallPerpendicularly;
@@ -193,7 +194,7 @@ int main()
 	head_left.image = al_load_bitmap("head_snake_left1.bmp");
 	head_up.image = al_load_bitmap("head_snake_up1.bmp");
 	head_down.image = al_load_bitmap("head_snake_down1.bmp");
-	bodySnake.image = al_load_bitmap("body_snake_red.bmp");
+	body.image = al_load_bitmap("body_snake_red.bmp");
 	wall.image = al_load_bitmap("wall.bmp");
 	wallHorizontally.image = al_load_bitmap("wallPoziom.bmp");
 	wallPerpendicularly.image = al_load_bitmap("wallPion.bmp");
@@ -482,7 +483,7 @@ int main()
 			else if (state == PLAY)
 			{
 				playScene(background_game, x, y);
-				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, bodySnake.image, fps, GameFPS, Speed, EatRed);
+				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, body.image, fps, GameFPS, Speed, EatRed);
 				Walls();
 				CollisionWalls();
 				generateApple();
@@ -551,7 +552,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(right, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake.x - Pixels * i, bodySnake.y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x - Pixels * i, bodySnake[i].y, 0);
 			}
 
 		}
@@ -562,7 +563,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(left, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake.x + Pixels * i, bodySnake.y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x + Pixels * i, bodySnake[i].y, 0);
 			}
 		}
 			break;
@@ -572,7 +573,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(up, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake.x, bodySnake.y + Pixels * i, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y + Pixels * i, 0);
 			}
 		}
 			break;
@@ -582,7 +583,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(down, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake.x, bodySnake.y - Pixels * i, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y - Pixels * i, 0);
 			}
 		}			
 			break;
@@ -727,13 +728,7 @@ void CollisionWalls()
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 {
 
-	XbodyNext = bodySnake.x;
-	YbodyNext = bodySnake.y;
-	int HeadXNow = 0;
-	int HeadYNow = 0;
-	bodySnake.x = 0;
-	bodySnake.y = 0;
-	
+	int XbodyNext = 0, YbodyNext = 0, HeadXNow = 0, HeadYNow = 0;
 
 	HeadXNow = HeadPosition.x + (x * Pixels);
 	HeadYNow = HeadPosition.y + (y * Pixels);
@@ -747,23 +742,17 @@ void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 		points++;
 		
 	}
-
-	bodySnake.x = HeadXNow;
-	bodySnake.y = HeadYNow;
+	for (Body; Body <; i++)
+	{
+		bodySnake[i].x = HeadXNow;
+		bodySnake[i].y = HeadYNow;
+		/*XbodyNext = bodySnake[i].x;
+		YbodyNext = bodySnake[i].y;*/
+	}
+	//bodySnake.x = HeadXNow;
+	//bodySnake.y = HeadYNow;
 	HeadPosition.x = HeadXNow;
 	HeadPosition.y = HeadYNow;
-	//MAP[HeadPosition.x + HeadPosition.y * mapW] = Body + 1;
-	//al_draw_bitmap(right, HeadPosNowX, HeadPosNowY, 0);
-	
-	//if (Body > 1)
-	//{
-	//	for (int i = 2; i <= Body; i++)
-	//	{
-	//		BodySnakeX = HeadPosition.x - (Pixels * i);
-	//		BodySnakeY = HeadPosition.y;
-	//		//al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
-	//	}
-	//}
 }
 
 void generateApple() {
@@ -792,25 +781,3 @@ void generateApple() {
 	}
 	al_draw_bitmap(apple.image, apple.x, apple.y, NULL);
 }
-
-/*void DrawBody()
-{
-	int i;
-
-	for (i = 0; i < Body; i++)
-	{
-		al_draw_bitmap(bodysnake, XbodyNext, YbodyNext, 0);
-		al_draw_bitmap(bodysnake, snake_body, SnakeSegment[i][0] * 32 + 1,
-			SnakeSegment[i][1] * 32 + 1);
-	}
-
-	/* If function called from move_snake(), remove final segment of snake
-	from the screen */
-	/*if (mode = 1) {
-		blit(back, screen, snake_segment[length][0] * TILE_SIZE,
-			snake_segment[length][1] * TILE_SIZE,
-			snake_segment[length][0] * TILE_SIZE,
-			snake_segment[length][1] * TILE_SIZE,
-			TILE_SIZE, TILE_SIZE);
-	}
-}*/
