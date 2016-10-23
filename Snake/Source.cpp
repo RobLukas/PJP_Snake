@@ -391,6 +391,9 @@ int main()
 					Sleep(30);
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
+					points = 0;
+					apple.x = random() * Pixels;
+					apple.y = random() * Pixels;
 					//MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 					DirectionSnake = Right;
 				}
@@ -445,10 +448,13 @@ int main()
 				}
 				if (keys[SPACE])
 				{
+					Sleep(30);
 					al_clear_to_color(al_map_rgb(0, 0, 0));
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
 					points = 0;
+					apple.x = random() * Pixels;
+					apple.y = random() * Pixels;
 					//MAP[HeadPosition.x + HeadPosition.y * mapW] = 1;
 					state = PLAY;
 					keys[ESCAPE] = false;
