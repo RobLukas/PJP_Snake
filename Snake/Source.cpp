@@ -80,7 +80,7 @@ struct Sprite
 Sprite HeadPosition;
 Sprite FoodX;
 Sprite FoodY;
-Sprite BodySnake;
+Sprite bodySnake;
 Sprite wall;
 Sprite wallHorizontally;
 Sprite wallPerpendicularly;
@@ -151,13 +151,10 @@ int main()
 	ALLEGRO_FONT *subtitles;
 	ALLEGRO_FONT *subtitlesover;
 
-
-
 	Sprite head_right;
 	Sprite head_left;
 	Sprite head_up;
 	Sprite head_down;
-	Sprite BodySnakeImage;
 
 	//al_create_bitmap
 	//al_set_target_bitmap
@@ -196,7 +193,7 @@ int main()
 	head_left.image = al_load_bitmap("head_snake_left1.bmp");
 	head_up.image = al_load_bitmap("head_snake_up1.bmp");
 	head_down.image = al_load_bitmap("head_snake_down1.bmp");
-	BodySnakeImage.image = al_load_bitmap("body_snake_red.bmp");
+	bodySnake.image = al_load_bitmap("body_snake_red.bmp");
 	wall.image = al_load_bitmap("wall.bmp");
 	wallHorizontally.image = al_load_bitmap("wallPoziom.bmp");
 	wallPerpendicularly.image = al_load_bitmap("wallPion.bmp");
@@ -391,6 +388,7 @@ int main()
 					Sleep(30);
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
+					Body = 1;
 					points = 0;
 					apple.x = random() * Pixels;
 					apple.y = random() * Pixels;
@@ -452,6 +450,7 @@ int main()
 					al_clear_to_color(al_map_rgb(0, 0, 0));
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
+					Body = 1;
 					points = 0;
 					apple.x = random() * Pixels;
 					apple.y = random() * Pixels;
@@ -471,6 +470,7 @@ int main()
 				apple.y = random() * Pixels;
 				randomParametersXY(posX);
 				randomParametersXY(posY);
+				Body = 1;
 				Collision = false;
 				HeadPosition.x = (Width / mapW) * 5;
 				HeadPosition.y = (Height / mapH) * 5;
@@ -482,7 +482,7 @@ int main()
 			else if (state == PLAY)
 			{
 				playScene(background_game, x, y);
-				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, BodySnakeImage.image, fps, GameFPS, Speed, EatRed);
+				GameRun(head_right.image, head_left.image, head_up.image, head_down.image, bodySnake.image, fps, GameFPS, Speed, EatRed);
 				Walls();
 				CollisionWalls();
 				generateApple();
@@ -497,6 +497,7 @@ int main()
 				apple.y = random() * Pixels;
 				randomParametersXY(posX);
 				randomParametersXY(posY);
+				Body = 1;
 				Collision = false;
 				DirectionSnake = Right;
 				al_stop_sample_instance(InGameSoundInst);
@@ -550,7 +551,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(right, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, BodySnake.x - Pixels * i, BodySnake.y, 0);
+				al_draw_bitmap(bodysnake, bodySnake.x - Pixels * i, bodySnake.y, 0);
 			}
 
 		}
@@ -561,7 +562,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(left, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, BodySnake.x + Pixels * i, BodySnake.y, 0);
+				al_draw_bitmap(bodysnake, bodySnake.x + Pixels * i, bodySnake.y, 0);
 			}
 		}
 			break;
@@ -571,7 +572,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(up, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, BodySnake.x, BodySnake.y + Pixels * i, 0);
+				al_draw_bitmap(bodysnake, bodySnake.x, bodySnake.y + Pixels * i, 0);
 			}
 		}
 			break;
@@ -581,7 +582,7 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 			al_draw_bitmap(down, HeadPosition.x, HeadPosition.y, 0);
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, BodySnake.x, BodySnake.y - Pixels * i, 0);
+				al_draw_bitmap(bodysnake, bodySnake.x, bodySnake.y - Pixels * i, 0);
 			}
 		}			
 			break;
@@ -726,12 +727,12 @@ void CollisionWalls()
 void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 {
 
-	XbodyNext = BodySnake.x;
-	YbodyNext = BodySnake.y;
+	XbodyNext = bodySnake.x;
+	YbodyNext = bodySnake.y;
 	int HeadXNow = 0;
 	int HeadYNow = 0;
-	BodySnake.x = 0;
-	BodySnake.y = 0;
+	bodySnake.x = 0;
+	bodySnake.y = 0;
 	
 
 	HeadXNow = HeadPosition.x + (x * Pixels);
@@ -742,12 +743,13 @@ void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 		al_play_sample(eatred, 1, 0, 1, ALLEGRO_PLAYMODE_ONCE, NULL);
 		apple.x = random() * Pixels;
 		apple.y = random() * Pixels;
+		Body++;
 		points++;
 		
 	}
 
-	BodySnake.x = HeadXNow;
-	BodySnake.y = HeadYNow;
+	bodySnake.x = HeadXNow;
+	bodySnake.y = HeadYNow;
 	HeadPosition.x = HeadXNow;
 	HeadPosition.y = HeadYNow;
 	//MAP[HeadPosition.x + HeadPosition.y * mapW] = Body + 1;
@@ -762,22 +764,6 @@ void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 	//		//al_draw_bitmap(bodysnake, BodySnakeX, BodySnakeY, 0);
 	//	}
 	//}
-}
-
-void AddItems(int maps, ALLEGRO_BITMAP *bodysnake)
-{
-	if (maps > 0)
-	{
-		return al_draw_bitmap(bodysnake, HeadPosition.x, HeadPosition.y, 0);
-	}
-
-	/*switch (maps)
-	{
-	case Apple:
-		return 
-	default:
-		break;
-	}*/
 }
 
 void generateApple() {
