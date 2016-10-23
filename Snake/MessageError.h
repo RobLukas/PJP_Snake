@@ -4,7 +4,7 @@
 
 int messageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FONT *titles, ALLEGRO_FONT *setting_titles, 
 	ALLEGRO_FONT *options_titles, ALLEGRO_FONT *fps, ALLEGRO_BITMAP *background, ALLEGRO_BITMAP *background_game, 
-	ALLEGRO_BITMAP *head_right, ALLEGRO_SAMPLE_INSTANCE *InGameSound)
+	ALLEGRO_BITMAP *head_right, ALLEGRO_SAMPLE_INSTANCE *InGameSound, ALLEGRO_BITMAP *apple)
 {
 
 	if (!al_install_audio()) 
@@ -95,6 +95,11 @@ int messageErrors(ALLEGRO_DISPLAY *display, ALLEGRO_FONT *subtitles, ALLEGRO_FON
 	if (!InGameSound)
 	{
 		fprintf(stderr, "Error: Not found file InGameSound!\n");
+		return -1;
+	}
+	if (!apple)
+	{
+		fprintf(stderr, "Error: Not found file apple!\n");
 		return -1;
 	}
 }

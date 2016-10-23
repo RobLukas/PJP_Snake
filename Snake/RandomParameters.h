@@ -9,7 +9,7 @@
 using namespace std;
 
 int random() {
-	return 1 + (int)(rand() / (RAND_MAX + 1.0) * 24);
+	return 1 + (int)(rand() / (RAND_MAX + 1.0) * 23);
 }
 
 void randomParametersXY(int *pos) {

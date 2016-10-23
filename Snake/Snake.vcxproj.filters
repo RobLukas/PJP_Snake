@@ -62,6 +62,9 @@
     <Image Include="wallPoziom.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="apple.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="TEMPSITC.TTF">
@@ -96,6 +99,9 @@
     <ClInclude Include="RandomParameters.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="generateApple.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ingame1.ogg">
@@ -111,5 +117,8 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="eatred.ogg">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

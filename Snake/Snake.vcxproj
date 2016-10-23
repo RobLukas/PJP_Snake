@@ -162,6 +162,7 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="apple.jpg" />
     <Image Include="body_snake.bmp" />
     <Image Include="body_snake_red.bmp" />
     <Image Include="head_snake_down1.bmp" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameOverScene.h" />
+    <ClInclude Include="generateApple.h" />
     <ClInclude Include="MenuScene.h" />
     <ClInclude Include="MessageError.h" />
     <ClInclude Include="PlayScene.h" />
@@ -194,6 +196,7 @@
   <ItemGroup>
     <None Include="changeonred.ogg" />
     <None Include="crash.ogg" />
+    <None Include="eatred.ogg" />
     <None Include="ingame1.ogg" />
     <None Include="packages.config" />
     <None Include="song.ogg" />
