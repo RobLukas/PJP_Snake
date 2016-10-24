@@ -191,6 +191,7 @@
     <ClInclude Include="PlayScene.h" />
     <ClInclude Include="RandomParameters.h" />
     <ClInclude Include="SettingScene.h" />
+    <ClInclude Include="Vector.h" />
     <ClInclude Include="Walls.h" />
   </ItemGroup>
   <ItemGroup>

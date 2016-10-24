@@ -16,6 +16,9 @@
 #include "GameOverScene.h"
 #include "SettingScene.h"
 #include "RandomParameters.h"
+#include <queue>
+#include "Vector.h"
+
 //#include "generateApple.h"
 
 #define MAX 768
@@ -42,9 +45,12 @@ int MAP[mapW*mapH];
 
 int posX[10], posY[10];
 
-int Body = 2;
+int Body = 1;
+
 int XbodyNext = 0;
 int YbodyNext = 0;
+
+MyVector pos;
 
 enum STATE { MENU, PLAY, GAMEOVER, SETTING };
 bool keys[] = { false, false, false, false, false, false, false, false, false, false, false };
@@ -57,6 +63,10 @@ int state = MENU;
 
 bool finish;
 bool Collision = false;
+
+//===== QUEUE =====//
+queue<int> x;
+queue<int> y;
 
 //=========== VARIABLES ACHIEVEMENTS ===========//
 int points = 0;
@@ -386,10 +396,10 @@ int main()
 				}
 				else if (keys[SPACE])
 				{
-					Sleep(30);
+					Sleep(100);
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
-					Body = 1;
+					Body = 2;
 					points = 0;
 					apple.x = random() * Pixels;
 					apple.y = random() * Pixels;
@@ -451,7 +461,7 @@ int main()
 					al_clear_to_color(al_map_rgb(0, 0, 0));
 					HeadPosition.x = (Width / mapW) * 5;
 					HeadPosition.y = (Height / mapH) * 5;
-					Body = 1;
+					Body = 2;
 					points = 0;
 					apple.x = random() * Pixels;
 					apple.y = random() * Pixels;
@@ -471,7 +481,7 @@ int main()
 				apple.y = random() * Pixels;
 				randomParametersXY(posX);
 				randomParametersXY(posY);
-				Body = 1;
+				Body = 2;
 				Collision = false;
 				HeadPosition.x = (Width / mapW) * 5;
 				HeadPosition.y = (Height / mapH) * 5;
@@ -498,7 +508,7 @@ int main()
 				apple.y = random() * Pixels;
 				randomParametersXY(posX);
 				randomParametersXY(posY);
-				Body = 1;
+				Body = 2;
 				Collision = false;
 				DirectionSnake = Right;
 				al_stop_sample_instance(InGameSoundInst);
@@ -544,26 +554,46 @@ void GameRun(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, AL
 void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *up, ALLEGRO_BITMAP *down, ALLEGRO_BITMAP *bodysnake, int Speed, ALLEGRO_SAMPLE *eatred)
 {
 
+	
 	switch (DirectionSnake)
 	{
 		case Right:
 		{
 			MoveSnake(1, 0, bodysnake, eatred);
 			al_draw_bitmap(right, HeadPosition.x, HeadPosition.y, 0);
+			//for (int i = 1; i <= Body; i++)
+			//{
+			//	al_draw_bitmap(bodysnake, bodySnake[i].x - Pixels * i, bodySnake[i].y, 0);
+			//}
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake[i].x - Pixels * i, bodySnake[i].y, 0);
+				bodySnake[0].x = HeadPosition.x - Pixels * i;
+				bodySnake[0].y = HeadPosition.y;
+				bodySnake[i].x = bodySnake[i - 1].x;
+				bodySnake[i].y = bodySnake[i - 1].y;
+				al_draw_bitmap(bodysnake, bodySnake[0].x, bodySnake[0].y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y, 0);
+				//x.push(HeadPosition.x);
+				//y.push(HeadPosition.y);
 			}
-
 		}
 			break;
 		case Left:
 		{
 			MoveSnake(-1, 0, bodysnake, eatred);
 			al_draw_bitmap(left, HeadPosition.x, HeadPosition.y, 0);
+			//for (int i = 1; i <= Body; i++)
+			//{
+			//	al_draw_bitmap(bodysnake, bodySnake[i].x + Pixels * i, bodySnake[i].y, 0);
+			//}
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake[i].x + Pixels * i, bodySnake[i].y, 0);
+				bodySnake[0].x = HeadPosition.x + Pixels * i;
+				bodySnake[0].y = HeadPosition.y;
+				bodySnake[i].x = bodySnake[i - 1].x;
+				bodySnake[i].y = bodySnake[i - 1].y;
+				al_draw_bitmap(bodysnake, bodySnake[0].x, bodySnake[0].y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y, 0);
 			}
 		}
 			break;
@@ -571,9 +601,18 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		{
 			MoveSnake(0, -1, bodysnake, eatred);
 			al_draw_bitmap(up, HeadPosition.x, HeadPosition.y, 0);
+			//for (int i = 1; i <= Body; i++)
+			//{
+			//	al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y + Pixels * i, 0);
+			//}
 			for (int i = 1; i <= Body; i++)
 			{
-				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y + Pixels * i, 0);
+				bodySnake[0].x = HeadPosition.x;
+				bodySnake[0].y = HeadPosition.y + Pixels * i;
+				bodySnake[i].x = bodySnake[i - 1].x;
+				bodySnake[i].y = bodySnake[i - 1].y;
+				al_draw_bitmap(bodysnake, bodySnake[0].x, bodySnake[0].y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y, 0);
 			}
 		}
 			break;
@@ -581,9 +620,25 @@ void DirectionMove(ALLEGRO_BITMAP *right, ALLEGRO_BITMAP *left, ALLEGRO_BITMAP *
 		{
 			MoveSnake(0, 1, bodysnake, eatred);
 			al_draw_bitmap(down, HeadPosition.x, HeadPosition.y, 0);
-			for (int i = 1; i <= Body; i++)
+			//for (int i = 1; i <= Body; i++)
+			//{
+			//	al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y - Pixels * i, 0);
+			//}
+			for (int i = Body; i >= 1; i--)
 			{
-				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y - Pixels * i, 0);
+				//bodySnake[0].x = HeadPosition.x;
+				//bodySnake[0].y = HeadPosition.y - Pixels * i;
+				//bodySnake[i].x = bodySnake[i - 1].x;
+				//bodySnake[i].y = bodySnake[i - 1].y;
+				/*Position(HeadPosition.x, HeadPosition.y);
+				pos.pop();*/
+
+				bodySnake[i].x = HeadPosition.x;
+				bodySnake[i].y = HeadPosition.y - Pixels * i;
+				x.push(bodySnake[i].x);
+				y.push(bodySnake[i].y);
+				//al_draw_bitmap(bodysnake, bodySnake[Body].x, bodySnake[Body].y, 0);
+				al_draw_bitmap(bodysnake, bodySnake[i].x, bodySnake[i].y, 0);
 			}
 		}			
 			break;
@@ -740,17 +795,17 @@ void MoveSnake(int x, int y, ALLEGRO_BITMAP *bodysnake, ALLEGRO_SAMPLE *eatred)
 		apple.y = random() * Pixels;
 		Body++;
 		points++;
-		
 	}
-	for (Body; Body <; i++)
-	{
-		bodySnake[i].x = HeadXNow;
-		bodySnake[i].y = HeadYNow;
-		/*XbodyNext = bodySnake[i].x;
-		YbodyNext = bodySnake[i].y;*/
-	}
-	//bodySnake.x = HeadXNow;
-	//bodySnake.y = HeadYNow;
+
+	//for (int i = 1; i <= Body; i++)
+	//{
+	//	bodySnake[0].x = HeadXNow;
+	//	bodySnake[0].y = HeadYNow;
+	//	bodySnake[i].x = bodySnake[i - 1].x;
+	//	bodySnake[i].y = bodySnake[i - 1].y;
+	//	//x.push(HeadPosition.x);
+	//	//y.push(HeadPosition.y);
+	//}
 	HeadPosition.x = HeadXNow;
 	HeadPosition.y = HeadYNow;
 }
