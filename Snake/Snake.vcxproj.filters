@@ -20,9 +20,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="snake_tlo2.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="tlo_gry.png">
       <Filter>Resource Files</Filter>
     </Image>
@@ -35,13 +32,7 @@
     <Image Include="wall1.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="body_snake.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="body_snake_red.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="head_snake_red.bmp">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="head_snake_down1.bmp">
@@ -62,7 +53,7 @@
     <Image Include="wallPoziom.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="apple.jpg">
+    <Image Include="apple.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -111,9 +102,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="song.ogg">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="changeonred.ogg">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="crash.ogg">

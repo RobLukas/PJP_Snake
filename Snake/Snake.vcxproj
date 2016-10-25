@@ -162,15 +162,12 @@
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="apple.jpg" />
-    <Image Include="body_snake.bmp" />
+    <Image Include="apple.bmp" />
     <Image Include="body_snake_red.bmp" />
     <Image Include="head_snake_down1.bmp" />
     <Image Include="head_snake_left1.bmp" />
-    <Image Include="head_snake_red.bmp" />
     <Image Include="head_snake_right1.bmp" />
     <Image Include="head_snake_up1.bmp" />
-    <Image Include="snake_tlo2.bmp" />
     <Image Include="tlo1.bmp" />
     <Image Include="tlo_gry.png" />
     <Image Include="wall.bmp" />
@@ -195,7 +192,6 @@
     <ClInclude Include="Walls.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="changeonred.ogg" />
     <None Include="crash.ogg" />
     <None Include="eatred.ogg" />
     <None Include="ingame1.ogg" />
